@@ -71,7 +71,7 @@ export default function Page() {
         <ChevronLeft />
       </Link>
       <div className="max-w-5xl mx-auto space-y-5">
-        <div className="w-full">
+        <div className="w-full flex justify-between border-b pb-5">
           <Input
             type="text"
             placeholder="type book name"
@@ -79,6 +79,14 @@ export default function Page() {
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
           />
+          <div>
+            <Link
+              href={"/books/1"}
+              className="bg-neutral-200 h-8 px-2 flex justify-center items-center"
+            >
+              new book
+            </Link>
+          </div>
         </div>
         <div className="w-full flex gap-3 items-center px-2">
           <p className="text-sm text-neutral-400">Categories:</p>
@@ -103,7 +111,9 @@ export default function Page() {
 
         <div className="bg-neutral-100/50 rounded-xl">
           <Table>
-            <TableCaption className="py-3">A list of your recent books.</TableCaption>
+            <TableCaption className="py-3">
+              A list of your recent books.
+            </TableCaption>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-80">Title</TableHead>

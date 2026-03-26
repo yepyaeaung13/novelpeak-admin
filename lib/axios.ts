@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const axiosClient = axios.create({
-  baseURL: "https://novelfull-api.onrender.com/api",
+  baseURL: "http://novel-peak-api-bhihus-e267b0-82-39-109-100.traefik.me/api",
   headers: {
     "Content-Type": "application/json",
   },
