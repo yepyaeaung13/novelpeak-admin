@@ -9,7 +9,7 @@ RUN apk add --no-cache git
 
 # Copy dependency files first for caching
 COPY package.json pnpm-lock.yaml ./
-COPY .npmrc ./
+# COPY .npmrc ./
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Install dependencies
