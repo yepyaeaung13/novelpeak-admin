@@ -1,43 +1,45 @@
-# Stage 1: build
+# Stage 1: Builder
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-RUN apk add --no-cache git
+RUN apk add --no-cache libc6-compat
 
-COPY package.json pnpm-lock.yaml ./
-
+# Enable pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# ✅ Install with lower resource usage
+# Copy deps first (cache)
+COPY package.json pnpm-lock.yaml ./
+
+# Limit memory usage
 ENV NODE_OPTIONS="--max-old-space-size=1024"
+
 RUN pnpm install --frozen-lockfile
 
+# Copy source
 COPY . .
 
-# ✅ Limit CPU usage (important!)
+# Disable telemetry
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV NODE_OPTIONS="--max-old-space-size=1024"
 
+# Build
 RUN pnpm build
 
-# Stage 2: production
+
+# Stage 2: Runner (small image)
 FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
 ENV NODE_ENV=production
 ENV PORT=3000
 
-# ✅ Only copy necessary files
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/pnpm-lock.yaml ./
-COPY --from=builder /app/.next ./.next
+# Copy standalone output only (🔥 important)
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/node_modules ./node_modules
 
 EXPOSE 3000
 
-CMD ["pnpm", "start"]
+# Run standalone server
+CMD ["node", "server.js"]
