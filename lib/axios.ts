@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 export const axiosClient = axios.create({
-  baseURL: "http://novel-peak-api-bhihus-e267b0-82-39-109-100.traefik.me/api",
+  baseURL: "https://api.novelpeak.online/api",
   headers: {
     "Content-Type": "application/json",
   },
