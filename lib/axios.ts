@@ -1,4 +1,5 @@
 import axios from "axios";
+import Cookies from "js-cookie";
 
 export const axiosClient = axios.create({
   baseURL: "http://novel-peak-api-bhihus-e267b0-82-39-109-100.traefik.me/api",
@@ -9,7 +10,7 @@ export const axiosClient = axios.create({
 
 axiosClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get("accessToken");
     if (token) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
@@ -24,7 +25,8 @@ axiosClient.interceptors.response.use(
   response => response,
   error => {
     if (error.response && error.response.status === 401) {
-      localStorage.removeItem("token");
+      Cookies.remove("auth", { path: "/" });
+      Cookies.remove("token", { path: "/" });
       window.location.href = "/login";
     }
     return Promise.reject(error);
