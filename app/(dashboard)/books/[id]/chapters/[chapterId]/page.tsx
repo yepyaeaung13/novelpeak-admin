@@ -6,14 +6,22 @@ import { ChevronLeft, Trash2 } from "lucide-react";
 import dayjs from "dayjs";
 import { Input } from "@/components/ui/input";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
-import { useGetChapterDetails, useUpdateChapter, useDeleteChapter } from "@/query/book";
+import {
+  useGetChapterDetails,
+  useUpdateChapter,
+  useDeleteChapter,
+} from "@/query/book";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 export default function Page() {
   const { id, chapterId } = useParams();
   const router = useRouter();
-  const { data, isLoading, isError } = useGetChapterDetails(chapterId as string);
-  const { mutate: updateChapter, isPending: isSaving } = useUpdateChapter(chapterId as string);
+  const { data, isLoading, isError } = useGetChapterDetails(
+    chapterId as string,
+  );
+  const { mutate: updateChapter, isPending: isSaving } = useUpdateChapter(
+    chapterId as string,
+  );
   const { mutate: deleteChapter } = useDeleteChapter(id as string);
 
   const [isEditing, setIsEditing] = useState(false);
@@ -56,18 +64,22 @@ export default function Page() {
     <div className="w-full p-5 bg-neutral-50 min-h-screen">
       <div className="max-w-5xl mx-auto space-y-6 h-full">
         {/* Header Section */}
-        <div className="bg-white rounded-xl border border-neutral-200 shadow-sm p-6">
+        <div className="bg-white rounded-xl border border-neutral-200 shadow-sm px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => router.push(`/books/${id}`)}
-                className="bg-neutral-100 hover:bg-neutral-200 w-10 h-10 flex justify-center items-center rounded-lg transition-colors"
+                className="w-10 h-10 border rounded-lg flex items-center justify-center hover:bg-neutral-100 transition"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <div>
-                <h1 className="text-2xl font-bold text-neutral-900">{isEditing ? "Edit Chapter" : data.title}</h1>
-                <p className="text-sm text-neutral-600 mt-1">Chapter {chapterNumber}</p>
+                <h1 className="text-lg font-bold text-neutral-900">
+                  {isEditing ? "Edit Chapter" : data.title}
+                </h1>
+                <p className="text-sm text-neutral-600 mt-1">
+                  Chapter {chapterNumber}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -79,7 +91,7 @@ export default function Page() {
                   </button>
                 }
                 title="Delete Chapter"
-                description={`Are you sure you want to delete "${data?.title || 'this chapter'}"? This action cannot be undone.`}
+                description={`Are you sure you want to delete "${data?.title || "this chapter"}"? This action cannot be undone.`}
                 onConfirm={() => {
                   deleteChapter(chapterId as string, {
                     onSuccess: () => router.push(`/books/${id}`),
@@ -145,14 +157,34 @@ export default function Page() {
                 onChange={(e) => setChapterNumber(Number(e.target.value))}
                 required
               />
-              <RichTextEditor value={content} onChange={setContent} placeholder="Chapter content" className="h-full" />
+              <RichTextEditor
+                value={content}
+                onChange={setContent}
+                placeholder="Chapter content"
+                className="h-full"
+              />
             </div>
           ) : (
-            <div className="prose lg:prose-xl max-w-none text-neutral-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: data.content || "<p>No content</p>" }} />
+            <div
+              className="prose lg:prose-xl max-w-none text-neutral-700 leading-relaxed"
+              dangerouslySetInnerHTML={{
+                __html: data.content || "<p>No content</p>",
+              }}
+            />
           )}
           <div className="mt-6 text-xs text-neutral-500 flex gap-5">
-            <span>Created: {data.createdAt ? dayjs(data.createdAt).format("YYYY-MM-DD HH:mm") : "-"}</span>
-            <span>Updated: {data.updatedAt ? dayjs(data.updatedAt).format("YYYY-MM-DD HH:mm") : "-"}</span>
+            <span>
+              Created:{" "}
+              {data.createdAt
+                ? dayjs(data.createdAt).format("YYYY-MM-DD HH:mm")
+                : "-"}
+            </span>
+            <span>
+              Updated:{" "}
+              {data.updatedAt
+                ? dayjs(data.updatedAt).format("YYYY-MM-DD HH:mm")
+                : "-"}
+            </span>
           </div>
         </div>
       </div>
