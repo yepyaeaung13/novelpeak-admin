@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { uploadImage } from "@/service/common";
 
 type Book = {
   title: string;
@@ -22,23 +23,34 @@ export default function Page() {
     author: "",
     coverImage: null,
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const { mutate: addBook, isPending } = useAddBook();
 
-  const handleCreateBook = (e: FormEvent<HTMLFormElement>) => {
+  const handleCreateBook = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    addBook(book, {
-      onSuccess: () => {
-        router.back();
+    let coverImage = null;
+    if (imageFile) {
+      const res = await uploadImage(imageFile);
+      console.log("res", res);
+      coverImage = res.url;
+    }
+
+    addBook(
+      { ...book, coverImage },
+      {
+        onSuccess: () => {
+          router.back();
+        },
       },
-    });
+    );
   };
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
     if (!file) return;
-
+    setImageFile(file);
     setBook((prev) => ({ ...prev, coverImage: URL.createObjectURL(file) }));
   };
 
@@ -56,8 +68,12 @@ export default function Page() {
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <div>
-                <h1 className="text-2xl font-bold text-neutral-900">Create New Book</h1>
-                <p className="text-sm text-neutral-600 mt-1">Add a new book to your collection</p>
+                <h1 className="text-2xl font-bold text-neutral-900">
+                  Create New Book
+                </h1>
+                <p className="text-sm text-neutral-600 mt-1">
+                  Add a new book to your collection
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -76,7 +92,9 @@ export default function Page() {
               <button
                 form="book"
                 type="submit"
-                disabled={isPending || !book.title || !book.author || !book.description}
+                disabled={
+                  isPending || !book.title || !book.author || !book.description
+                }
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 font-medium"
               >
                 {isPending ? "Creating..." : "Create Book"}
@@ -113,7 +131,11 @@ export default function Page() {
             </label>
           </div>
 
-          <form id="book" onSubmit={handleCreateBook} className="w-2/3 space-y-4">
+          <form
+            id="book"
+            onSubmit={handleCreateBook}
+            className="w-2/3 space-y-4"
+          >
             <Input
               type="text"
               placeholder="Book title"
@@ -130,7 +152,9 @@ export default function Page() {
             />
             <Textarea
               value={book.description}
-              onChange={(e) => setBook({ ...book, description: e.target.value })}
+              onChange={(e) =>
+                setBook({ ...book, description: e.target.value })
+              }
               placeholder="Book description"
               className="h-36"
               required

@@ -83,8 +83,12 @@ export default function Page() {
                 <ChevronLeft className="w-5 h-5" />
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-neutral-900">Books Management</h1>
-                <p className="text-sm text-neutral-600 mt-1">Manage your book collection and chapters</p>
+                <h1 className="text-2xl font-bold text-neutral-900">
+                  Books Management
+                </h1>
+                <p className="text-sm text-neutral-600 mt-1">
+                  Manage your book collection and chapters
+                </p>
               </div>
             </div>
             <Link
@@ -110,7 +114,9 @@ export default function Page() {
               />
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-neutral-700">Filter by:</span>
+              <span className="text-sm font-medium text-neutral-700">
+                Filter by:
+              </span>
               <div className="flex gap-2 flex-wrap">
                 {categories.map((cat) => (
                   <Badge
@@ -118,7 +124,8 @@ export default function Page() {
                     variant="outline"
                     className={cn(
                       "text-neutral-600 border-neutral-300 cursor-pointer hover:bg-neutral-100 transition-colors px-3 py-1",
-                      category === cat.name && "bg-blue-50 text-blue-700 border-blue-300",
+                      category === cat.name &&
+                        "bg-blue-50 text-blue-700 border-blue-300",
                     )}
                     onClick={() =>
                       setCategory(cat.name === category ? "" : cat.name)
@@ -139,34 +146,73 @@ export default function Page() {
             </TableCaption>
             <TableHeader className="bg-neutral-50">
               <TableRow>
-                <TableHead className="w-80 font-semibold text-neutral-700">Title</TableHead>
-                <TableHead className="font-semibold text-neutral-700">Author</TableHead>
-                <TableHead className="text-center font-semibold text-neutral-700">Chapters</TableHead>
-                <TableHead className="text-center font-semibold text-neutral-700">Views</TableHead>
-                <TableHead className="text-center font-semibold text-neutral-700">Likes</TableHead>
-                <TableHead className="text-center w-36 font-semibold text-neutral-700">Status</TableHead>
+                <TableHead className="w-80 font-semibold text-neutral-700">
+                  Title
+                </TableHead>
+                <TableHead className="font-semibold text-neutral-700">
+                  Author
+                </TableHead>
+                <TableHead className="text-center font-semibold text-neutral-700">
+                  Chapters
+                </TableHead>
+                <TableHead className="text-center font-semibold text-neutral-700">
+                  Views
+                </TableHead>
+                <TableHead className="text-center font-semibold text-neutral-700">
+                  Likes
+                </TableHead>
+                <TableHead className="text-center w-36 font-semibold text-neutral-700">
+                  Status
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {books?.data?.map((book: Book) => (
-                <TableRow key={book.id} className="hover:bg-neutral-50 transition-colors">
+                <TableRow
+                  key={book.id}
+                  className="hover:bg-neutral-50 transition-colors"
+                >
                   <TableCell
                     onClick={() => handleGotDetail(book.id)}
                     className="font-medium hover:text-blue-600 cursor-pointer duration-200"
                   >
-                    {book.title}
+                    <div className="flex gap-3 items-center">
+                      {book.coverImage && (
+                        <img
+                          src={book.coverImage}
+                          alt="photo"
+                          width={50}
+                          height={200}
+                        />
+                      )}
+                      {book.title}
+                    </div>
                   </TableCell>
-                  <TableCell className="text-neutral-600">{book.author}</TableCell>
-                  <TableCell className="text-center text-neutral-600">{book.chapterCount}</TableCell>
-                  <TableCell className="text-center text-neutral-600">{book.views}</TableCell>
-                  <TableCell className="text-center text-neutral-600">{book.likes}</TableCell>
+                  <TableCell className="text-neutral-600">
+                    {book.author}
+                  </TableCell>
+                  <TableCell className="text-center text-neutral-600">
+                    {book.chapterCount}
+                  </TableCell>
+                  <TableCell className="text-center text-neutral-600">
+                    {book.views}
+                  </TableCell>
+                  <TableCell className="text-center text-neutral-600">
+                    {book.likes}
+                  </TableCell>
                   <TableCell className="text-center">
                     {book.isPublished ? (
-                      <Badge variant="outline" className="text-green-600 border-green-300 bg-green-50">
+                      <Badge
+                        variant="outline"
+                        className="text-green-600 border-green-300 bg-green-50"
+                      >
                         Published
                       </Badge>
                     ) : (
-                      <Badge variant="outline" className="text-orange-600 border-orange-300 bg-orange-50">
+                      <Badge
+                        variant="outline"
+                        className="text-orange-600 border-orange-300 bg-orange-50"
+                      >
                         Draft
                       </Badge>
                     )}
@@ -176,7 +222,9 @@ export default function Page() {
             </TableBody>
             <TableFooter className="bg-neutral-50">
               <TableRow>
-                <TableCell colSpan={1} className="text-neutral-600">Rows per page {limit}</TableCell>
+                <TableCell colSpan={1} className="text-neutral-600">
+                  Rows per page {limit}
+                </TableCell>
                 <TableCell colSpan={5} className="text-right">
                   <div className="">
                     <TablePagination

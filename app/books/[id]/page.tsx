@@ -23,6 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { TablePagination } from "@/components/table-pagination";
+import { uploadImage } from "@/service/common";
 
 type Book = {
   title: string;
@@ -60,6 +61,7 @@ function BookDetail() {
   const { mutate: deleteChapter } = useDeleteChapter(id as string);
 
   const [bookEdits, setBookEdits] = useState<Partial<Book>>({});
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const book = useMemo(
     () => ({
@@ -75,14 +77,21 @@ function BookDetail() {
   const chapterCount = useMemo(() => data?.chapters?.length ?? 0, [data]);
   const totalChapterPages = Math.max(1, Math.ceil(chapterCount / limit));
 
-  const handleSaveBook = (e: SubmitEvent) => {
+  const handleSaveBook = async (e: SubmitEvent) => {
     e.preventDefault();
+
+    let coverImage = null;
+    if (imageFile) {
+      const res = await uploadImage(imageFile);
+      console.log("res", res);
+      coverImage = res.url;
+    }
 
     updateBook({
       title: book.title,
       author: book.author,
       description: book.description,
-      coverImage: book.coverImage,
+      coverImage: coverImage ?? book.coverImage,
     });
   };
 
@@ -90,6 +99,7 @@ function BookDetail() {
     const file = e.target.files?.[0] ?? null;
     if (!file) return;
 
+    setImageFile(file);
     setBookEdits((prev) => ({
       ...prev,
       coverImage: URL.createObjectURL(file),
@@ -101,7 +111,9 @@ function BookDetail() {
   };
 
   const goToAddChapter = () => {
-    router.push(`/books/${id}/chapters/add?bookId=${id}&book-title=${book.title}&next-chapter=${data?.chapters?.length + 1}`);
+    router.push(
+      `/books/${id}/chapters/add?bookId=${id}&book-title=${book.title}&next-chapter=${data?.chapters?.length + 1}`,
+    );
   };
 
   if (isLoading) {
@@ -221,7 +233,10 @@ function BookDetail() {
             Cover: {book.coverImage ? "Uploaded" : "Missing"}
           </div>
           <div className="bg-white p-3 rounded-lg border border-neutral-200 shadow-sm">
-            Updated: {data?.updatedAt ? dayjs(data?.updatedAt).format("YYYY-MM-DD HH:mm") : "-"}
+            Updated:{" "}
+            {data?.updatedAt
+              ? dayjs(data?.updatedAt).format("YYYY-MM-DD HH:mm")
+              : "-"}
           </div>
         </div>
 
@@ -268,10 +283,14 @@ function BookDetail() {
                     {chapter.title}
                   </TableCell>
                   <TableCell className="text-center text-neutral-600">
-                    {chapter.createdAt ? dayjs(chapter.createdAt).format("YYYY-MM-DD HH:mm") : "-"}
+                    {chapter.createdAt
+                      ? dayjs(chapter.createdAt).format("YYYY-MM-DD HH:mm")
+                      : "-"}
                   </TableCell>
                   <TableCell className="text-center text-neutral-600">
-                    {chapter.updatedAt ? dayjs(chapter.updatedAt).format("YYYY-MM-DD HH:mm") : "-"}
+                    {chapter.updatedAt
+                      ? dayjs(chapter.updatedAt).format("YYYY-MM-DD HH:mm")
+                      : "-"}
                   </TableCell>
                   <TableCell className="text-center">
                     <ConfirmDialog
