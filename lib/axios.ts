@@ -3,6 +3,8 @@ import Cookies from "js-cookie";
 
 export const axiosClient = axios.create({
   baseURL: "https://api.novelpeak.online/api",
+  // baseURL: "http://localhost:3000/api",
+
   headers: {
     "Content-Type": "application/json",
   },

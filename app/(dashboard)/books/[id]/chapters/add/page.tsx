@@ -15,7 +15,9 @@ export default function Page() {
   const nextChapter = searchQuery.get("next-chapter");
   const bookTitle = searchQuery.get("book-title");
 
-  const { mutate: addChapter, isPending: isSaving } = useAddChapter(id as string);
+  const { mutate: addChapter, isPending: isSaving } = useAddChapter(
+    id as string,
+  );
   const { mutate: translate, isPending: isTranslating } = useTranslate();
 
   const [title, setTitle] = useState("");
@@ -42,7 +44,7 @@ export default function Page() {
         onSuccess: () => {
           router.push(`/books/${id}`);
         },
-      }
+      },
     );
   };
 
@@ -61,12 +63,16 @@ export default function Page() {
           console.error("Translation failed:", error);
           // Optionally show a toast notification
         },
-      }
+      },
     );
   };
 
   return (
-    <div className="w-full p-5 bg-neutral-50 min-h-screen">
+    <div
+      className={`w-full p-5 min-h-screen bg-neutral-50 ${
+        isTranslating ? "pointer-events-none select-none" : ""
+      }`}
+    >
       <div className="max-w-5xl mx-auto space-y-6">
         {/* Header */}
         <div className="bg-white rounded-xl border border-neutral-200 shadow-sm px-6 py-4 flex items-center justify-between">
@@ -157,6 +163,20 @@ export default function Page() {
               onChange={(value) => setContent(value)}
             />
           </form>
+
+          {isTranslating && (
+            <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center cursor-not-allowed">
+              <div className="flex flex-col items-center gap-4">
+                {/* Spinner */}
+                <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+
+                {/* Text */}
+                <p className="text-white text-sm font-medium">
+                  Translating... This may take a few minutes
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

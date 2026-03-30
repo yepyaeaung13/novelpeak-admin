@@ -84,7 +84,7 @@ export default function DashboardLayout({
       {/* Main */}
       <div className="flex-1 flex flex-col">
         {/* Topbar */}
-        <header className="h-14 bg-white border-b px-6 flex items-center justify-between">
+        <header className="bg-white border-b px-6 py-3 flex items-center justify-between">
           <h2 className="font-semibold">Dashboard</h2>
 
           <div className="flex items-center gap-4">
