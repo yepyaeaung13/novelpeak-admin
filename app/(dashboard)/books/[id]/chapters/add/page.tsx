@@ -29,7 +29,7 @@ export default function Page() {
   };
 
   const isContentEmpty = useMemo(() => {
-    return content.length === 0;
+    return stripHtml(content).length === 0;
   }, [content]);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
