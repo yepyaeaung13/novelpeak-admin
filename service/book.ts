@@ -101,3 +101,8 @@ export const deleteChapter = async (chapterId: string) => {
   const res = await axiosClient.delete(`/v1/books/chapters/${chapterId}`);
   return res.data;
 };
+
+export const bookTranslate = async (text: string, targetLang: string) => {
+  const res = await axiosClient.post("/v1/books/translate", { text, targetLang });
+  return res.data.translatedText;
+}

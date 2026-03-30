@@ -15,6 +15,7 @@ import {
   addChapter,
   updateChapter,
   deleteChapter,
+  bookTranslate,
 } from "../service/book";
 
 export const useGetDiscoverBooks = () => {
@@ -167,3 +168,9 @@ export const useDeleteChapter = (bookId: string | undefined) => {
     },
   });
 };
+
+export const useTranslate = () => {
+  return useMutation({
+    mutationFn: async ({ text, targetLang }: { text: string; targetLang: string }) => bookTranslate(text, targetLang),
+  });
+}
