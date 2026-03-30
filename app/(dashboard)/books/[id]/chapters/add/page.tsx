@@ -21,7 +21,7 @@ export default function Page() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [chapterNumber, setChapterNumber] = useState(Number(nextChapter));
-  const [targetLang, setTargetLang] = useState("English"); // default target language
+  const [targetLang, setTargetLang] = useState("Myanmar"); // default target language
 
   // Helper to strip HTML tags from content (plain text extraction)
   const stripHtml = (html: string) => {
