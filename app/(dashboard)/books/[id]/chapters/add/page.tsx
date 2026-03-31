@@ -69,53 +69,55 @@ export default function Page() {
 
   return (
     <div
-      className={`w-full p-5 min-h-screen bg-neutral-50 ${
+      className={`w-full p-4 md:p-5 min-h-screen bg-neutral-50 ${
         isTranslating ? "pointer-events-none select-none" : ""
       }`}
     >
-      <div className="max-w-5xl mx-auto space-y-6">
+      <div className="max-w-5xl mx-auto space-y-4 md:space-y-6">
         {/* Header */}
-        <div className="bg-white rounded-xl border border-neutral-200 shadow-sm px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => router.push(`/books/${id}`)}
-              className="w-10 h-10 border rounded-lg flex items-center justify-center hover:bg-neutral-100 transition"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <div className="flex flex-col">
-              <h1 className="text-lg font-semibold text-neutral-900">
-                New Chapter
-              </h1>
-              <p className="text-sm text-neutral-500">
-                {bookTitle} • Chapter {chapterNumber}
-              </p>
+        <div className="bg-white rounded-xl border border-neutral-200 shadow-sm px-4 md:px-6 py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <button
+                onClick={() => router.push(`/books/${id}`)}
+                className="w-10 h-10 border rounded-lg flex items-center justify-center hover:bg-neutral-100 transition"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <div className="min-w-0">
+                <h1 className="text-base md:text-lg font-semibold text-neutral-900">
+                  New Chapter
+                </h1>
+                <p className="text-sm text-neutral-500 truncate max-w-[200px] sm:max-w-none">
+                  {bookTitle} • Ch. {chapterNumber}
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center px-3 py-1 rounded-md bg-neutral-100 text-sm text-neutral-600">
-              #{chapterNumber}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="hidden sm:flex items-center px-3 py-1 rounded-md bg-neutral-100 text-sm text-neutral-600">
+                #{chapterNumber}
+              </div>
+              <div className="hidden sm:block w-px h-6 bg-neutral-300"></div>
+              <button
+                type="button"
+                onClick={() => router.back()}
+                className="px-3 sm:px-4 py-2 text-sm border rounded-lg hover:bg-neutral-100 transition"
+              >
+                Cancel
+              </button>
+              <button
+                form="chapterForm"
+                type="submit"
+                disabled={isSaving || !id || !title.trim() || isContentEmpty}
+                className="px-3 sm:px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+              >
+                {isSaving ? "Saving..." : "Save"}
+              </button>
             </div>
-            <div className="hidden sm:block w-px h-6 bg-neutral-300"></div>
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="px-4 py-2 text-sm border rounded-lg hover:bg-neutral-100 transition"
-            >
-              Cancel
-            </button>
-            <button
-              form="chapterForm"
-              type="submit"
-              disabled={isSaving || !id || !title.trim() || isContentEmpty}
-              className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
-            >
-              {isSaving ? "Saving..." : "Save"}
-            </button>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl border border-neutral-200 shadow-sm">
+        <div className="bg-white p-4 md:p-6 rounded-xl border border-neutral-200 shadow-sm">
           <form id="chapterForm" onSubmit={handleSubmit} className="space-y-4">
             <Input
               type="text"
@@ -135,7 +137,7 @@ export default function Page() {
             />
 
             {/* Translation toolbar */}
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
               <select
                 value={targetLang}
                 onChange={(e) => setTargetLang(e.target.value)}
@@ -152,7 +154,12 @@ export default function Page() {
                 className="flex items-center gap-2 px-3 py-1.5 text-sm bg-neutral-100 border rounded-md hover:bg-neutral-200 transition disabled:opacity-50"
               >
                 <Languages className="w-4 h-4" />
-                {isTranslating ? "Translating..." : "Translate"}
+                <span className="hidden sm:inline">
+                  {isTranslating ? "Translating..." : "Translate"}
+                </span>
+                <span className="sm:hidden">
+                  {isTranslating ? "..." : "Translate"}
+                </span>
               </button>
             </div>
 

@@ -32,11 +32,11 @@ export default function Page() {
   };
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-4 md:p-6">
 
       {/* 🔷 Top Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           <Link
             href={"/"}
             className="w-10 h-10 flex items-center justify-center rounded-lg border hover:bg-neutral-100 bg-white"
@@ -45,8 +45,8 @@ export default function Page() {
           </Link>
 
           <div>
-            <h1 className="text-2xl font-bold">Books</h1>
-            <p className="text-sm text-neutral-500">
+            <h1 className="text-xl sm:text-2xl font-bold">Books</h1>
+            <p className="text-sm text-neutral-500 hidden sm:block">
               Manage your books and chapters
             </p>
           </div>
@@ -54,17 +54,17 @@ export default function Page() {
 
         <Link
           href={"/books/add"}
-          className="bg-black text-white px-4 py-2 rounded-lg text-sm hover:opacity-90"
+          className="bg-black text-white px-4 py-2 rounded-lg text-sm hover:opacity-90 text-center"
         >
           + Add Book
         </Link>
       </div>
 
       {/* 🔷 Filters */}
-      <div className="flex flex-col lg:flex-row gap-4 justify-between">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-between">
 
         {/* Search */}
-        <div className="relative w-full max-w-md">
+        <div className="relative w-full sm:max-w-md">
           <Search className="absolute left-3 top-2.5 w-4 h-4 text-neutral-400" />
           <Input
             placeholder="Search books..."
@@ -93,8 +93,8 @@ export default function Page() {
         </div>
       </div>
 
-      {/* 🔷 Table Card */}
-      <div className="bg-white border rounded-xl overflow-hidden">
+      {/* 🔷 Table Card - Desktop */}
+      <div className="hidden md:block bg-white border rounded-xl overflow-hidden">
 
         {/* Table Header */}
         <div className="px-5 py-3 border-b flex justify-between items-center">
@@ -173,6 +173,60 @@ export default function Page() {
 
         {/* Pagination */}
         <div className="p-4 border-t flex justify-end">
+          <TablePagination
+            pageCount={books?.meta?.totalPages}
+            page={page}
+            setPage={setPage}
+          />
+        </div>
+      </div>
+
+      {/* 🔷 Mobile Cards */}
+      <div className="md:hidden space-y-3">
+        <div className="px-1 py-2 flex justify-between items-center">
+          <span className="text-sm text-neutral-500">
+            {books?.meta?.total ?? 0} books
+          </span>
+        </div>
+        {books?.data?.map((book: any) => (
+          <div
+            key={book.id}
+            onClick={() => handleGotDetail(book.id)}
+            className="bg-white border rounded-xl p-4 flex gap-4 hover:bg-neutral-50 cursor-pointer"
+          >
+            {book.coverImage && (
+              <img
+                src={book.coverImage}
+                className="w-16 h-20 object-cover rounded-lg border flex-shrink-0"
+              />
+            )}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="font-medium truncate">{book.title}</p>
+                  <p className="text-sm text-neutral-500">{book.author}</p>
+                </div>
+                <Badge
+                  className={cn(
+                    "flex-shrink-0",
+                    book.isPublished
+                      ? "bg-green-100 text-green-700"
+                      : "bg-orange-100 text-orange-700"
+                  )}
+                >
+                  {book.isPublished ? "Published" : "Draft"}
+                </Badge>
+              </div>
+              <div className="mt-2 flex flex-wrap gap-3 text-xs text-neutral-500">
+                <span>Chapters: {book.chapterCount}</span>
+                <span>Views: {book.views}</span>
+                <span>Likes: {book.likes}</span>
+              </div>
+              <p className="mt-1 text-xs text-neutral-400">ID: {book.id}</p>
+            </div>
+          </div>
+        ))}
+        <div className="pt-2">
           <TablePagination
             pageCount={books?.meta?.totalPages}
             page={page}

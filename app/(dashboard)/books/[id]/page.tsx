@@ -62,10 +62,10 @@ export default function Page() {
   if (isLoading) return <div className="p-6">Loading...</div>;
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-4 md:space-y-6">
       {/* 🔷 Header */}
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           <button
             onClick={() => router.push("/books")}
             className="w-10 h-10 border rounded-lg flex items-center justify-center hover:bg-neutral-100 bg-white"
@@ -73,8 +73,8 @@ export default function Page() {
             <ChevronLeft size={18} />
           </button>
 
-          <div>
-            <h1 className="text-xl font-semibold">{book.title}</h1>
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-xl font-semibold truncate">{book.title}</h1>
             <p className="text-sm text-neutral-500">
               {data?.chapters?.length} chapters
             </p>
@@ -87,7 +87,7 @@ export default function Page() {
             className="flex items-center gap-2 px-3 py-2 bg-neutral-900 text-white rounded-lg text-sm"
           >
             <Plus size={16} />
-            Add Chapter
+            <span className="hidden sm:inline">Add Chapter</span>
           </button>
 
           <button
@@ -100,10 +100,10 @@ export default function Page() {
       </div>
 
       {/* 🔷 Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         {/* Left */}
-        <div className="bg-white border rounded-xl p-5 space-y-4">
-          <div className="h-64 bg-neutral-100 rounded-lg overflow-hidden flex items-center justify-center">
+        <div className="bg-white border rounded-xl p-4 md:p-5 space-y-4">
+          <div className="aspect-[3/4] max-h-64 mx-auto bg-neutral-100 rounded-lg overflow-hidden flex items-center justify-center w-full md:h-64">
             {book.coverImage ? (
               <img
                 src={book.coverImage}
@@ -132,7 +132,7 @@ export default function Page() {
         </div>
 
         {/* Right */}
-        <div className="lg:col-span-2 bg-white border rounded-xl p-6 space-y-4">
+        <div className="md:col-span-2 bg-white border rounded-xl p-4 md:p-6 space-y-4">
           <Input
             value={book.title}
             onChange={(e) =>
@@ -150,14 +150,14 @@ export default function Page() {
             onChange={(e) =>
               setBookEdits({ ...bookEdits, description: e.target.value })
             }
-            className="h-40"
+            className="h-32 md:h-40"
           />
         </div>
       </div>
 
       {/* 🔷 Chapters */}
       <div className="bg-white border rounded-xl overflow-hidden">
-        <div className="px-5 py-3 border-b text-sm text-neutral-500">
+        <div className="px-4 md:px-5 py-3 border-b text-sm text-neutral-500">
           Chapters
         </div>
 
@@ -167,14 +167,14 @@ export default function Page() {
             .map((c: any) => (
               <div
                 key={c.id}
-                className="flex justify-between items-center px-5 py-3 border-b hover:bg-neutral-50"
+                className="flex justify-between items-center px-4 md:px-5 py-3 border-b hover:bg-neutral-50"
               >
                 <div
                   onClick={() => router.push(`/books/${id}/chapters/${c.id}`)}
-                  className="cursor-pointer"
+                  className="cursor-pointer min-w-0 flex-1"
                 >
-                  <p className="font-medium">
-                    Chapter {c.chapterNumber}: {c.title}
+                  <p className="font-medium truncate">
+                    Ch. {c.chapterNumber}: {c.title}
                   </p>
                   <p className="text-xs text-neutral-400">
                     {dayjs(c.updatedAt).format("YYYY-MM-DD HH:mm")}
@@ -183,7 +183,7 @@ export default function Page() {
 
                 <ConfirmDialog
                   trigger={
-                    <button className="text-neutral-400 hover:text-red-500">
+                    <button className="text-neutral-400 hover:text-red-500 p-2 flex-shrink-0">
                       <Trash2 size={16} />
                     </button>
                   }
@@ -204,9 +204,9 @@ export default function Page() {
 
         {/* 🔷 Pagination */}
         {/* {chapters?.meta?.totalPages > 1 && ( */}
-        <div className="flex items-center justify-between gap-4 px-5 py-5">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 md:px-5 py-4">
           {/* Left: Limit Selector */}
-          <div className="flex items-center gap-2 text-sm">
+          <div className="flex items-center gap-2 text-sm order-2 sm:order-1">
             <span className="text-neutral-500">Show</span>
 
             <select
@@ -228,38 +228,43 @@ export default function Page() {
           </div>
 
           {/* Right: Navigation */}
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-3 sm:gap-5 order-1 sm:order-2">
             <button
               disabled={page === 1 || chaptersLoading}
               onClick={() => setPage(page - 1)}
               className={cn(
-                "flex items-center gap-1 px-3 py-2 rounded-lg border text-sm transition",
+                "flex items-center gap-1 px-2 sm:px-3 py-2 rounded-lg border text-sm transition",
                 "hover:bg-neutral-100 dark:hover:bg-neutral-800",
                 page === 1 && "opacity-50 cursor-not-allowed",
               )}
             >
               <ChevronLeft size={16} />
-              Prev
+              <span className="hidden sm:inline">Prev</span>
             </button>
             {/* Center: Page Info */}
             <div className="text-sm text-neutral-500">
-              Page{" "}
-              <span className="font-medium text-neutral-800 dark:text-neutral-200">
-                {page}
-              </span>{" "}
-              of {chapters?.meta?.totalPages}
+              <span className="sm:hidden">
+                {page}/{chapters?.meta?.totalPages}
+              </span>
+              <span className="hidden sm:inline">
+                Page{" "}
+                <span className="font-medium text-neutral-800 dark:text-neutral-200">
+                  {page}
+                </span>{" "}
+                of {chapters?.meta?.totalPages}
+              </span>
             </div>
             <button
               disabled={page === chapters?.meta?.totalPages || chaptersLoading}
               onClick={() => setPage(page + 1)}
               className={cn(
-                "flex items-center gap-1 px-3 py-2 rounded-lg border text-sm transition",
+                "flex items-center gap-1 px-2 sm:px-3 py-2 rounded-lg border text-sm transition",
                 "hover:bg-neutral-100 dark:hover:bg-neutral-800",
                 page === chapters?.meta?.totalPages &&
                   "opacity-50 cursor-not-allowed",
               )}
             >
-              Next
+              <span className="hidden sm:inline">Next</span>
               <ChevronRight size={16} />
             </button>
           </div>

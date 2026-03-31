@@ -51,11 +51,11 @@ export default function Page() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-4 md:space-y-6">
 
       {/* 🔷 Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           <button
             onClick={() => router.back()}
             className="w-10 h-10 border rounded-lg flex items-center justify-center hover:bg-neutral-100"
@@ -64,8 +64,8 @@ export default function Page() {
           </button>
 
           <div>
-            <h1 className="text-2xl font-bold">Create Book</h1>
-            <p className="text-sm text-neutral-500">
+            <h1 className="text-xl md:text-2xl font-bold">Create Book</h1>
+            <p className="text-sm text-neutral-500 hidden sm:block">
               Add a new book to your platform
             </p>
           </div>
@@ -94,13 +94,13 @@ export default function Page() {
       </div>
 
       {/* 🔷 Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
 
         {/* Cover Upload */}
-        <div className="bg-white border rounded-xl p-5 space-y-4">
+        <div className="bg-white border rounded-xl p-4 md:p-5 space-y-4">
           <h3 className="font-semibold">Cover Image</h3>
 
-          <div className="relative border rounded-xl h-64 flex items-center justify-center bg-neutral-50 overflow-hidden">
+          <div className="relative border rounded-xl aspect-[3/4] max-h-64 mx-auto w-full md:h-64 flex items-center justify-center bg-neutral-50 overflow-hidden">
             {book.coverImage ? (
               <img
                 src={book.coverImage}
@@ -131,7 +131,7 @@ export default function Page() {
         <form
           id="book"
           onSubmit={handleCreateBook}
-          className="lg:col-span-2 bg-white border rounded-xl p-6 space-y-5"
+          className="md:col-span-2 bg-white border rounded-xl p-4 md:p-6 space-y-4 md:space-y-5"
         >
           <div className="space-y-2">
             <label className="text-sm font-medium">Title</label>
@@ -163,7 +163,7 @@ export default function Page() {
                 setBook({ ...book, description: e.target.value })
               }
               placeholder="Write something about this book..."
-              className="h-40"
+              className="h-32 md:h-40"
             />
           </div>
         </form>

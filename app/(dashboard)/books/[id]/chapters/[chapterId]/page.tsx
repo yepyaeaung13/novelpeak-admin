@@ -61,33 +61,33 @@ export default function Page() {
   }
 
   return (
-    <div className="w-full p-5 bg-neutral-50 min-h-screen">
-      <div className="max-w-5xl mx-auto space-y-6 h-full">
+    <div className="w-full p-4 md:p-5 bg-neutral-50 min-h-screen">
+      <div className="max-w-5xl mx-auto space-y-4 md:space-y-6 h-full">
         {/* Header Section */}
-        <div className="bg-white rounded-xl border border-neutral-200 shadow-sm px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        <div className="bg-white rounded-xl border border-neutral-200 shadow-sm px-4 md:px-6 py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               <button
                 onClick={() => router.push(`/books/${id}`)}
                 className="w-10 h-10 border rounded-lg flex items-center justify-center hover:bg-neutral-100 transition"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
-              <div>
-                <h1 className="text-lg font-bold text-neutral-900">
+              <div className="min-w-0">
+                <h1 className="text-base md:text-lg font-bold text-neutral-900 truncate">
                   {isEditing ? "Edit Chapter" : data.title}
                 </h1>
-                <p className="text-sm text-neutral-600 mt-1">
+                <p className="text-sm text-neutral-600">
                   Chapter {chapterNumber}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <ConfirmDialog
                 trigger={
-                  <button className="bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors font-medium">
+                  <button className="bg-red-50 hover:bg-red-100 text-red-600 px-3 py-2 rounded-lg flex items-center gap-2 transition-colors font-medium text-sm">
                     <Trash2 className="w-4 h-4" />
-                    Delete
+                    <span className="hidden sm:inline">Delete</span>
                   </button>
                 }
                 title="Delete Chapter"
@@ -107,7 +107,7 @@ export default function Page() {
                     onClick={() => {
                       setIsEditing(false);
                     }}
-                    className="bg-neutral-100 hover:bg-neutral-200 text-neutral-700 px-4 py-2 rounded-lg transition-colors font-medium"
+                    className="bg-neutral-100 hover:bg-neutral-200 text-neutral-700 px-3 py-2 rounded-lg transition-colors font-medium text-sm"
                   >
                     Cancel
                   </button>
@@ -115,7 +115,7 @@ export default function Page() {
                     type="button"
                     onClick={handleSave}
                     disabled={isSaving || !title.trim() || isContentEmpty}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 font-medium"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors disabled:opacity-50 font-medium text-sm"
                   >
                     {isSaving ? "Saving..." : "Save"}
                   </button>
@@ -131,7 +131,7 @@ export default function Page() {
                     }
                     setIsEditing(true);
                   }}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors font-medium"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors font-medium text-sm"
                 >
                   Edit
                 </button>
@@ -140,7 +140,7 @@ export default function Page() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl border border-neutral-200 shadow-sm h-full">
+        <div className="bg-white p-4 md:p-6 rounded-xl border border-neutral-200 shadow-sm h-full">
           {isEditing ? (
             <div className="space-y-4 h-full">
               <Input
@@ -172,7 +172,7 @@ export default function Page() {
               }}
             />
           )}
-          <div className="mt-6 text-xs text-neutral-500 flex gap-5">
+          <div className="mt-4 md:mt-6 text-xs text-neutral-500 flex flex-wrap gap-3 md:gap-5">
             <span>
               Created:{" "}
               {data.createdAt
