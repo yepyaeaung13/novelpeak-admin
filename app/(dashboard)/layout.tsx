@@ -14,6 +14,7 @@ import {
   Menu,
 } from "lucide-react";
 import { NavItem } from "@/components/common";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 export default function DashboardLayout({
   children,
@@ -24,6 +25,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const user = useUserStore((state) => state.user);
   const clearUser = useUserStore((state) => state.clearUser);
+  const isMobile = useIsMobile();
 
   const handleLogout = () => {
     Cookies.remove("auth", { path: "/" });
@@ -37,11 +39,11 @@ export default function DashboardLayout({
       {/* Sidebar */}
       <aside
         className={`bg-white border-r transition-all duration-300 overflow-hidden ${
-          open ? "w-64" : "w-16"
+          open && !isMobile ? "w-64" : "w-16"
         }`}
       >
         <div className="p-4 flex items-center justify-between">
-          {open && <h1 className="font-bold text-nowrap">Novel Peak</h1>}
+          {open && !isMobile && <h1 className="font-bold text-nowrap">Novel Peak</h1>}
           <button onClick={() => setOpen(!open)}>
             <Menu size={20} />
           </button>
@@ -52,31 +54,31 @@ export default function DashboardLayout({
             icon={<LayoutDashboard size={18} />}
             label="Dashboard"
             href="/"
-            open={open}
+            open={open && !isMobile}
           />
           <NavItem
             icon={<BookOpen size={18} />}
             label="Books"
             href="/books"
-            open={open}
+            open={open && !isMobile}
           />
           <NavItem
             icon={<CreditCard size={18} />}
             label="Payments"
             href="/payments"
-            open={open}
+            open={open && !isMobile}
           />
           <NavItem
             icon={<Users size={18} />}
             label="Users"
             href="/users"
-            open={open}
+            open={open && !isMobile}
           />
           <NavItem
             icon={<BarChart3 size={18} />}
             label="Reports"
             href="/reports"
-            open={open}
+            open={open && !isMobile}
           />
         </nav>
       </aside>

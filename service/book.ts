@@ -106,3 +106,8 @@ export const bookTranslate = async (text: string, targetLang: string) => {
   const res = await axiosClient.post("/v1/books/translate", { text, targetLang });
   return res.data;
 }
+
+export const getChapterList = async (bookId: string | undefined, params: { page: number; limit: number; }) => {
+  const res = await axiosClient.get(`/v1/books/${bookId}/chapters`, { params });
+  return res.data;
+}

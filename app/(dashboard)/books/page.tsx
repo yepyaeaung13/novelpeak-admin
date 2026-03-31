@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import Link from "next/link";
 import { ChevronLeft, Search } from "lucide-react";
-import { useGetBooks } from "@/query/book";
+import { useGetBooks, useGetChaptersList } from "@/query/book";
 import { TablePagination } from "@/components/table-pagination";
 import { useState } from "react";
 import { cn } from "@/lib/utils";

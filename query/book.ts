@@ -16,6 +16,7 @@ import {
   updateChapter,
   deleteChapter,
   bookTranslate,
+  getChapterList,
 } from "../service/book";
 
 export const useGetDiscoverBooks = () => {
@@ -174,3 +175,10 @@ export const useTranslate = () => {
     mutationFn: async ({ text, targetLang }: { text: string; targetLang: string }) => bookTranslate(text, targetLang),
   });
 }
+
+export const useGetChaptersList = (bookId: string | undefined, params: { page: number; limit: number; }) => {
+  return useQuery({
+    queryKey: ["chapterslist", bookId, params],
+    queryFn: () => getChapterList(bookId, params),
+  });
+};
