@@ -1,12 +1,13 @@
 "use client";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, useEffect, useMemo, useState } from "react";
-import { ChevronLeft, Languages } from "lucide-react";
+import { FormEvent, useMemo, useState } from "react";
+import { ChevronLeft, Eye, Languages, Pencil } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
-import { useAddChapter, useGetBookDetails } from "@/query/book";
+import { useAddChapter } from "@/query/book";
 import { useTranslate } from "@/query/book"; // import the new hook
+import { isLocalApi } from "@/lib/axios";
 
 export default function Page() {
   const { id } = useParams();
@@ -22,8 +23,12 @@ export default function Page() {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [chapterNumber, setChapterNumber] = useState(Number(nextChapter));
+  const [chapterNumber, setChapterNumber] = useState(Number(nextChapter) || 1);
   const [targetLang, setTargetLang] = useState("Myanmar"); // default target language
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isPreview, setIsPreview] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const hasImages = /<img\b/i.test(content);
 
   // Helper to strip HTML tags from content (plain text extraction)
   const stripHtml = (html: string) => {
@@ -36,7 +41,8 @@ export default function Page() {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!id) return;
+    if (!id || isUploadingImage) return;
+    setSaveError("");
 
     addChapter(
       { title, content, chapterNumber },
@@ -44,13 +50,14 @@ export default function Page() {
         onSuccess: () => {
           router.push(`/books/${id}`);
         },
+        onError: () => setSaveError("Could not save the chapter. Please try again."),
       },
     );
   };
 
   const handleTranslate = () => {
     const plainText = stripHtml(content);
-    if (!plainText) return;
+    if (!plainText || hasImages) return;
 
     translate(
       { text: plainText, targetLang },
@@ -108,10 +115,10 @@ export default function Page() {
               <button
                 form="chapterForm"
                 type="submit"
-                disabled={isSaving || !id || !title.trim() || isContentEmpty}
+                disabled={isSaving || isUploadingImage || !id || !title.trim() || isContentEmpty}
                 className="px-3 sm:px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
               >
-                {isSaving ? "Saving..." : "Save"}
+                {isSaving ? "Saving..." : isUploadingImage ? "Uploading..." : "Save"}
               </button>
             </div>
           </div>
@@ -119,6 +126,7 @@ export default function Page() {
 
         <div className="bg-white p-4 md:p-6 rounded-xl border border-neutral-200 shadow-sm">
           <form id="chapterForm" onSubmit={handleSubmit} className="space-y-4">
+            {saveError && <p role="alert" className="text-sm text-red-600">{saveError}</p>}
             <Input
               type="text"
               placeholder="Chapter title"
@@ -136,7 +144,17 @@ export default function Page() {
               required
             />
 
+            <button
+              type="button"
+              onClick={() => setIsPreview((current) => !current)}
+              className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm hover:bg-neutral-50"
+            >
+              {isPreview ? <Pencil size={16} /> : <Eye size={16} />}
+              {isPreview ? "Edit" : "Preview"}
+            </button>
+
             {/* Translation toolbar */}
+            {!isPreview && !isLocalApi && (
             <div className="flex flex-wrap items-center gap-2 mb-2">
               <select
                 value={targetLang}
@@ -150,7 +168,8 @@ export default function Page() {
               <button
                 type="button"
                 onClick={handleTranslate}
-                disabled={isContentEmpty || isTranslating}
+                disabled={isContentEmpty || isTranslating || hasImages}
+                title={hasImages ? "Translate text before adding images" : "Translate chapter text"}
                 className="flex items-center gap-2 px-3 py-1.5 text-sm bg-neutral-100 border rounded-md hover:bg-neutral-200 transition disabled:opacity-50"
               >
                 <Languages className="w-4 h-4" />
@@ -162,13 +181,20 @@ export default function Page() {
                 </span>
               </button>
             </div>
+            )}
 
-            <RichTextEditor
+            <div className={isPreview ? "hidden" : ""}>
+              <RichTextEditor
               value={content}
               placeholder="Chapter content"
               className="h-full"
               onChange={(value) => setContent(value)}
-            />
+              onUploadChange={setIsUploadingImage}
+              />
+            </div>
+            {isPreview && (
+              <div className="chapter-content prose prose-neutral max-w-none min-h-64 border border-neutral-200 p-4" dangerouslySetInnerHTML={{ __html: content || "<p>No content</p>" }} />
+            )}
           </form>
 
           {isTranslating && (

@@ -12,22 +12,34 @@ import {
 } from "@/components/ui/table";
 import Link from "next/link";
 import { ChevronLeft, Search } from "lucide-react";
-import { useGetBooks, useGetChaptersList } from "@/query/book";
+import { useGetBooks } from "@/query/book";
 import { TablePagination } from "@/components/table-pagination";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { isLocalApi } from "@/lib/axios";
+
+type BookRow = {
+  id: string;
+  title: string;
+  author: string;
+  coverImage?: string;
+  chapterCount?: number;
+  views?: number;
+  likes?: number;
+  isPublished?: boolean;
+};
 
 export default function Page() {
   const router = useRouter();
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const limit = 10;
   const [category, setCategory] = useState("");
   const [searchText, setSearchText] = useState("");
 
-  const { data: books } = useGetBooks({ page, limit });
+  const { data: books } = useGetBooks({ page: page + 1, limit, searchText });
 
-  const handleGotDetail = (id: number) => {
+  const handleGotDetail = (id: string) => {
     router.push(`/books/${id}`);
   };
 
@@ -75,7 +87,7 @@ export default function Page() {
         </div>
 
         {/* Category Pills */}
-        <div className="flex gap-2 flex-wrap">
+        {!isLocalApi && <div className="flex gap-2 flex-wrap">
           {["All", "Xianxia", "Wuxia", "Xuanhuan", "Romance"].map((cat) => (
             <button
               key={cat}
@@ -90,7 +102,7 @@ export default function Page() {
               {cat}
             </button>
           ))}
-        </div>
+        </div>}
       </div>
 
       {/* 🔷 Table Card - Desktop */}
@@ -108,15 +120,12 @@ export default function Page() {
             <TableRow>
               <TableHead><p className="pl-2">Book</p></TableHead>
               <TableHead>Author</TableHead>
-              <TableHead className="text-center">Chapters</TableHead>
-              <TableHead className="text-center">Views</TableHead>
-              <TableHead className="text-center">Likes</TableHead>
-              <TableHead className="text-center">Status</TableHead>
+              {!isLocalApi && <><TableHead className="text-center">Chapters</TableHead><TableHead className="text-center">Views</TableHead><TableHead className="text-center">Likes</TableHead><TableHead className="text-center">Status</TableHead></>}
             </TableRow>
           </TableHeader>
 
           <TableBody>
-            {books?.data?.map((book: any) => (
+            {books?.data?.map((book: BookRow) => (
               <TableRow
                 key={book.id}
                 className="hover:bg-neutral-50 cursor-pointer"
@@ -127,6 +136,7 @@ export default function Page() {
                     {book.coverImage && (
                       <img
                         src={book.coverImage}
+                        alt=""
                         className="w-10 h-14 object-cover rounded-md border"
                       />
                     )}
@@ -143,7 +153,7 @@ export default function Page() {
                   {book.author}
                 </TableCell>
 
-                <TableCell className="text-center">
+                {!isLocalApi && <><TableCell className="text-center">
                   {book.chapterCount}
                 </TableCell>
 
@@ -166,6 +176,7 @@ export default function Page() {
                     {book.isPublished ? "Published" : "Draft"}
                   </Badge>
                 </TableCell>
+                </>}
               </TableRow>
             ))}
           </TableBody>
@@ -174,7 +185,7 @@ export default function Page() {
         {/* Pagination */}
         <div className="p-4 border-t flex justify-end">
           <TablePagination
-            pageCount={books?.meta?.totalPages}
+            pageCount={books?.meta?.totalPages ?? 1}
             page={page}
             setPage={setPage}
           />
@@ -188,7 +199,7 @@ export default function Page() {
             {books?.meta?.total ?? 0} books
           </span>
         </div>
-        {books?.data?.map((book: any) => (
+        {books?.data?.map((book: BookRow) => (
           <div
             key={book.id}
             onClick={() => handleGotDetail(book.id)}
@@ -197,6 +208,7 @@ export default function Page() {
             {book.coverImage && (
               <img
                 src={book.coverImage}
+                alt=""
                 className="w-16 h-20 object-cover rounded-lg border flex-shrink-0"
               />
             )}
@@ -206,7 +218,7 @@ export default function Page() {
                   <p className="font-medium truncate">{book.title}</p>
                   <p className="text-sm text-neutral-500">{book.author}</p>
                 </div>
-                <Badge
+                {!isLocalApi && <Badge
                   className={cn(
                     "flex-shrink-0",
                     book.isPublished
@@ -215,20 +227,20 @@ export default function Page() {
                   )}
                 >
                   {book.isPublished ? "Published" : "Draft"}
-                </Badge>
+                </Badge>}
               </div>
-              <div className="mt-2 flex flex-wrap gap-3 text-xs text-neutral-500">
+              {!isLocalApi && <div className="mt-2 flex flex-wrap gap-3 text-xs text-neutral-500">
                 <span>Chapters: {book.chapterCount}</span>
                 <span>Views: {book.views}</span>
                 <span>Likes: {book.likes}</span>
-              </div>
+              </div>}
               <p className="mt-1 text-xs text-neutral-400">ID: {book.id}</p>
             </div>
           </div>
         ))}
         <div className="pt-2">
           <TablePagination
-            pageCount={books?.meta?.totalPages}
+            pageCount={books?.meta?.totalPages ?? 1}
             page={page}
             setPage={setPage}
           />

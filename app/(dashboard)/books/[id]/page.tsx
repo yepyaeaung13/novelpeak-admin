@@ -13,9 +13,23 @@ import { useParams, useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { TablePagination } from "@/components/table-pagination";
 import { uploadImage } from "@/service/common";
 import { cn } from "@/lib/utils";
+import { isLocalApi } from "@/lib/axios";
+
+type BookEdits = Partial<{
+  title: string;
+  author: string;
+  description: string;
+  coverImage: string | null;
+}>;
+
+type ChapterRow = {
+  id: string;
+  title: string;
+  chapterNumber: number;
+  updatedAt?: string;
+};
 
 export default function Page() {
   const router = useRouter();
@@ -31,7 +45,7 @@ export default function Page() {
   const { mutate: updateBook, isPending } = useUpdateBook(id as string);
   const { mutate: deleteChapter } = useDeleteChapter(id as string);
 
-  const [bookEdits, setBookEdits] = useState<any>({});
+  const [bookEdits, setBookEdits] = useState<BookEdits>({});
   const [imageFile, setImageFile] = useState<File | null>(null);
 
   const book = useMemo(
@@ -76,26 +90,26 @@ export default function Page() {
           <div className="min-w-0">
             <h1 className="text-lg sm:text-xl font-semibold truncate">{book.title}</h1>
             <p className="text-sm text-neutral-500">
-              {data?.chapters?.length} chapters
+              {chapters?.meta?.total ?? 0} chapters
             </p>
           </div>
         </div>
 
         <div className="flex gap-2">
           <button
-            onClick={() => router.push(`/books/${id}/chapters/add`)}
+            onClick={() => router.push(`/books/${id}/chapters/add?next-chapter=${chapters?.meta?.nextChapterNumber ?? 1}&book-title=${encodeURIComponent(book.title)}`)}
             className="flex items-center gap-2 px-3 py-2 bg-neutral-900 text-white rounded-lg text-sm"
           >
             <Plus size={16} />
             <span className="hidden sm:inline">Add Chapter</span>
           </button>
 
-          <button
+          {!isLocalApi && <button
             onClick={handleSave}
             className="px-3 py-2 border rounded-lg text-sm bg-white"
           >
             {isPending ? "Saving..." : "Save"}
-          </button>
+          </button>}
         </div>
       </div>
 
@@ -107,6 +121,7 @@ export default function Page() {
             {book.coverImage ? (
               <img
                 src={book.coverImage}
+                alt=""
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -114,7 +129,7 @@ export default function Page() {
             )}
           </div>
 
-          <label className="block">
+          {!isLocalApi && <label className="block">
             <input
               type="file"
               accept="image/*"
@@ -124,29 +139,32 @@ export default function Page() {
             <div className="text-center text-sm border border-dashed rounded-lg py-2 cursor-pointer hover:bg-neutral-100">
               Choose Image
             </div>
-          </label>
+          </label>}
 
-          <div className="text-sm text-neutral-500 space-y-1">
+          {!isLocalApi && <div className="text-sm text-neutral-500 space-y-1">
             <p>Updated: {dayjs(data?.updatedAt).format("YYYY-MM-DD HH:mm")}</p>
-          </div>
+          </div>}
         </div>
 
         {/* Right */}
         <div className="md:col-span-2 bg-white border rounded-xl p-4 md:p-6 space-y-4">
           <Input
             value={book.title}
+            readOnly={isLocalApi}
             onChange={(e) =>
               setBookEdits({ ...bookEdits, title: e.target.value })
             }
           />
           <Input
             value={book.author}
+            readOnly={isLocalApi}
             onChange={(e) =>
               setBookEdits({ ...bookEdits, author: e.target.value })
             }
           />
           <Textarea
             value={book.description}
+            readOnly={isLocalApi}
             onChange={(e) =>
               setBookEdits({ ...bookEdits, description: e.target.value })
             }
@@ -163,8 +181,9 @@ export default function Page() {
 
         <div>
           {chapters?.data
-            ?.sort((a: any, b: any) => a.chapterNumber - b.chapterNumber)
-            .map((c: any) => (
+            ?.slice()
+            .sort((a: ChapterRow, b: ChapterRow) => a.chapterNumber - b.chapterNumber)
+            .map((c: ChapterRow) => (
               <div
                 key={c.id}
                 className="flex justify-between items-center px-4 md:px-5 py-3 border-b hover:bg-neutral-50"
@@ -176,12 +195,12 @@ export default function Page() {
                   <p className="font-medium truncate">
                     Ch. {c.chapterNumber}: {c.title}
                   </p>
-                  <p className="text-xs text-neutral-400">
+                  {!isLocalApi && <p className="text-xs text-neutral-400">
                     {dayjs(c.updatedAt).format("YYYY-MM-DD HH:mm")}
-                  </p>
+                  </p>}
                 </div>
 
-                <ConfirmDialog
+                {!isLocalApi && <ConfirmDialog
                   trigger={
                     <button className="text-neutral-400 hover:text-red-500 p-2 flex-shrink-0">
                       <Trash2 size={16} />
@@ -191,7 +210,7 @@ export default function Page() {
                   description="Are you sure?"
                   onConfirm={() => deleteChapter(String(c.id))}
                   destructive
-                />
+                />}
               </div>
             ))}
         </div>

@@ -1,9 +1,14 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
+export const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ||
+  (process.env.NODE_ENV === "development"
+    ? "http://localhost:8000"
+    : "https://api.novelpeak.online/api");
+export const isLocalApi = apiBaseUrl.replace(/\/$/, "") === "http://localhost:8000";
+
 export const axiosClient = axios.create({
-  baseURL: "https://api.novelpeak.online/api",
-  // baseURL: "http://localhost:3000/api",
+  baseURL: apiBaseUrl,
 
   headers: {
     "Content-Type": "application/json",
@@ -28,7 +33,7 @@ axiosClient.interceptors.response.use(
   error => {
     if (error.response && error.response.status === 401) {
       Cookies.remove("auth", { path: "/" });
-      Cookies.remove("token", { path: "/" });
+      Cookies.remove("accessToken", { path: "/" });
       window.location.href = "/login";
     }
     return Promise.reject(error);

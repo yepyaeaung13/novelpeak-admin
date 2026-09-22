@@ -29,7 +29,7 @@ export default function DashboardLayout({
 
   const handleLogout = () => {
     Cookies.remove("auth", { path: "/" });
-    Cookies.remove("token", { path: "/" });
+    Cookies.remove("accessToken", { path: "/" });
     clearUser();
     router.push("/login");
   };

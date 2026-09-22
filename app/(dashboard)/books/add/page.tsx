@@ -7,7 +7,6 @@ import { FormEvent, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { uploadImage } from "@/service/common";
-import { cn } from "@/lib/utils";
 
 export default function Page() {
   const router = useRouter();
@@ -20,23 +19,34 @@ export default function Page() {
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const { mutate: addBook, isPending } = useAddBook();
+  const [error, setError] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleCreateBook = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError("");
 
-    let coverImage = null;
+    try {
+      let coverImage = null;
 
-    if (imageFile) {
-      const res = await uploadImage(imageFile);
-      coverImage = res.url;
-    }
-
-    addBook(
-      { ...book, coverImage },
-      {
-        onSuccess: () => router.back(),
+      if (imageFile) {
+        setIsUploading(true);
+        const res = await uploadImage(imageFile);
+        coverImage = res.url;
       }
-    );
+
+      addBook(
+        { ...book, coverImage },
+        {
+          onSuccess: () => router.push("/books"),
+          onError: () => setError("Could not create the book. Please try again."),
+        },
+      );
+    } catch {
+      setError("Cover upload failed. Please check the image service and try again.");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,11 +94,11 @@ export default function Page() {
             form="book"
             type="submit"
             disabled={
-              isPending || !book.title || !book.author || !book.description
+              isPending || isUploading || !book.title || !book.author || !book.description
             }
             className="px-4 py-2 bg-black text-white rounded-lg text-sm hover:opacity-90 disabled:opacity-50"
           >
-            {isPending ? "Creating..." : "Create Book"}
+            {isPending ? "Creating..." : isUploading ? "Uploading..." : "Create Book"}
           </button>
         </div>
       </div>
@@ -104,6 +114,7 @@ export default function Page() {
             {book.coverImage ? (
               <img
                 src={book.coverImage}
+                alt=""
                 className="object-cover w-full h-full"
               />
             ) : (
@@ -133,6 +144,7 @@ export default function Page() {
           onSubmit={handleCreateBook}
           className="md:col-span-2 bg-white border rounded-xl p-4 md:p-6 space-y-4 md:space-y-5"
         >
+          {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
           <div className="space-y-2">
             <label className="text-sm font-medium">Title</label>
             <Input

@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { isLocalApi } from "@/lib/axios";
 import {
   addBook,
   addBookToLibrary,
@@ -48,11 +49,11 @@ export const useGetBookDetails = (bookId: string | undefined) => {
   });
 };
 
-export const useGetChapterDetails = (chapterId: string | undefined) => {
+export const useGetChapterDetails = (chapterId: string | undefined, bookId?: string) => {
   return useQuery({
-    queryKey: ["chapterDetails", chapterId],
-    queryFn: () => getChapterDetails(chapterId!),
-    enabled: !!chapterId,
+    queryKey: ["chapterDetails", bookId, chapterId],
+    queryFn: () => getChapterDetails(chapterId!, bookId),
+    enabled: !!chapterId && (!isLocalApi || !!bookId),
   });
 };
 
@@ -139,6 +140,7 @@ export const useAddChapter = (bookId: string | undefined) => {
     }) => addChapter(bookId!, chapterData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bookDetails", bookId], refetchType: "active" });
+      queryClient.invalidateQueries({ queryKey: ["chapterslist", bookId], refetchType: "active" });
     },
   });
 };
@@ -153,8 +155,9 @@ export const useUpdateChapter = (chapterId: string | undefined) => {
       chapterNumber: number;
     }) => updateChapter(chapterId!, chapterData),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["chapterDetails", chapterId], refetchType: "active" });
+      queryClient.invalidateQueries({ queryKey: ["chapterDetails"], refetchType: "active" });
       queryClient.invalidateQueries({ queryKey: ["bookDetails"], refetchType: "active" });
+      queryClient.invalidateQueries({ queryKey: ["chapterslist"], refetchType: "active" });
     },
   });
 };
@@ -166,6 +169,7 @@ export const useDeleteChapter = (bookId: string | undefined) => {
     mutationFn: (chapterId: string) => deleteChapter(chapterId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bookDetails", bookId], refetchType: "active" });
+      queryClient.invalidateQueries({ queryKey: ["chapterslist", bookId], refetchType: "active" });
     },
   });
 };

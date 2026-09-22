@@ -1,14 +1,14 @@
-import axiosClient from "@/lib/axios";
+import axiosClient, { isLocalApi } from "@/lib/axios";
 
 export const uploadImage = async (file: File) => {
   const form = new FormData();
-  form.append("file", file);
+  form.append(isLocalApi ? "image" : "file", file);
 
-  const res = await axiosClient.post("/v1/common/upload", form, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
+  const res = await axiosClient.post(
+    isLocalApi ? "/books/upload" : "/v1/common/upload",
+    form,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
 
   return res.data;
 };

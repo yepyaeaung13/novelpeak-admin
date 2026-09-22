@@ -1,4 +1,8 @@
-import axiosClient from "../lib/axios";
+import axiosClient, { isLocalApi } from "../lib/axios";
+
+const unsupported = (operation: string): never => {
+  throw new Error(`${operation} is not available in the local API yet.`);
+};
 
 export const getDiscoverBooks = async () => {
   const res = await axiosClient.get("/v1/books/discover");
@@ -16,12 +20,17 @@ export const getRecommendedBooks = async () => {
 }
 
 export const getBookDetails = async (bookId: string) => {
-  const res = await axiosClient.get(`/v1/books/${bookId}`);
-  return res.data;
+  const res = await axiosClient.get(isLocalApi ? `/books/${bookId}` : `/v1/books/${bookId}`);
+  return isLocalApi && res.data
+    ? { ...res.data, coverImage: res.data.cover }
+    : res.data;
 }
 
-export const getChapterDetails = async (chapterId: string) => {
-  const res = await axiosClient.get(`/v1/books/chapters/${chapterId}`);
+export const getChapterDetails = async (chapterId: string, bookId?: string) => {
+  if (isLocalApi && !bookId) throw new Error("Book ID is required for local chapters.");
+  const res = await axiosClient.get(isLocalApi
+    ? `/books/${bookId}/chapters/${chapterId}`
+    : `/v1/books/chapters/${chapterId}`);
   return res.data;
 }
 
@@ -53,6 +62,24 @@ export const getBooks = async (params: {
   category?: string;
   searchText?: string;
 }) => {
+  if (isLocalApi) {
+    const res = await axiosClient.get("/books");
+    const books = (res.data as Array<{
+      id: string;
+      title: string;
+      author: string;
+      cover: string;
+    }>).filter((book) => !params.searchText ||
+      `${book.title} ${book.author}`.toLowerCase().includes(params.searchText.toLowerCase()));
+    const start = (params.page - 1) * params.limit;
+    return {
+      data: books.slice(start, start + params.limit).map((book) => ({
+        ...book,
+        coverImage: book.cover,
+      })),
+      meta: { total: books.length, totalPages: Math.max(1, Math.ceil(books.length / params.limit)) },
+    };
+  }
   const res = await axiosClient.get("/v1/books", {
     params,
   });
@@ -65,7 +92,15 @@ export const addBook = async (bookData: {
   description: string;
   coverImage: string | null;
 }) => {
-  const res = await axiosClient.post("/v1/books", bookData);
+  const res = await axiosClient.post(
+    isLocalApi ? "/books" : "/v1/books",
+    isLocalApi ? {
+      title: bookData.title,
+      author: bookData.author,
+      description: bookData.description,
+      cover: bookData.coverImage ?? "",
+    } : bookData,
+  );
   return res.data;
 };
 
@@ -75,6 +110,7 @@ export const updateBook = async (bookId: string, bookData: {
   description: string;
   coverImage: string | null;
 }) => {
+  if (isLocalApi) unsupported("Book editing");
   const res = await axiosClient.put(`/v1/books/${bookId}`, bookData);
   return res.data;
 };
@@ -84,7 +120,10 @@ export const addChapter = async (bookId: string, chapterData: {
   content: string;
   chapterNumber: number;
 }) => {
-  const res = await axiosClient.post(`/v1/books/${bookId}/chapters`, chapterData);
+  const res = await axiosClient.post(
+    isLocalApi ? `/books/${bookId}/chapters` : `/v1/books/${bookId}/chapters`,
+    chapterData,
+  );
   return res.data;
 };
 
@@ -93,21 +132,39 @@ export const updateChapter = async (chapterId: string, chapterData: {
   content: string;
   chapterNumber: number;
 }) => {
+  if (isLocalApi) unsupported("Chapter editing");
   const res = await axiosClient.put(`/v1/books/chapters/${chapterId}`, chapterData);
   return res.data;
 };
 
 export const deleteChapter = async (chapterId: string) => {
+  if (isLocalApi) unsupported("Chapter deletion");
   const res = await axiosClient.delete(`/v1/books/chapters/${chapterId}`);
   return res.data;
 };
 
 export const bookTranslate = async (text: string, targetLang: string) => {
+  if (isLocalApi) unsupported("Translation");
   const res = await axiosClient.post("/v1/books/translate", { text, targetLang });
   return res.data;
 }
 
 export const getChapterList = async (bookId: string | undefined, params: { page: number; limit: number; }) => {
+  if (isLocalApi) {
+    const res = await axiosClient.get(`/books/${bookId}/chapters`);
+    const chapters = (res.data as Array<{ chapterNumber: number }>).sort(
+      (a, b) => a.chapterNumber - b.chapterNumber,
+    );
+    const start = (params.page - 1) * params.limit;
+    return {
+      data: chapters.slice(start, start + params.limit),
+      meta: {
+        total: chapters.length,
+        totalPages: Math.max(1, Math.ceil(chapters.length / params.limit)),
+        nextChapterNumber: chapters.reduce((max, chapter) => Math.max(max, chapter.chapterNumber), 0) + 1,
+      },
+    };
+  }
   const res = await axiosClient.get(`/v1/books/${bookId}/chapters`, { params });
   return res.data;
 }
