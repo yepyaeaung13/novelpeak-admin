@@ -1,64 +1,16 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import { ChevronLeft, Eye, Pencil, Trash2 } from "lucide-react";
-import dayjs from "dayjs";
-import { Input } from "@/components/ui/input";
-import { RichTextEditor } from "@/components/ui/rich-text-editor";
-import {
-  useGetChapterDetails,
-  useUpdateChapter,
-  useDeleteChapter,
-} from "@/query/book";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { isOakApi } from "@/lib/axios";
+import { ChevronLeft } from "lucide-react";
+import { useGetChapterDetails } from "@/query/book";
 
 export default function Page() {
   const { id, chapterId } = useParams();
   const router = useRouter();
-  const { data, isLoading, isError } = useGetChapterDetails(
+  const { data, isLoading } = useGetChapterDetails(
     chapterId as string,
     id as string,
   );
-  const { mutate: updateChapter, isPending: isSaving } = useUpdateChapter(
-    chapterId as string,
-  );
-  const { mutate: deleteChapter } = useDeleteChapter(id as string);
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [chapterNumber, setChapterNumber] = useState(1);
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const [isPreview, setIsPreview] = useState(false);
-  const [saveError, setSaveError] = useState("");
-
-  useEffect(() => {
-    if (isError) {
-      // optional: handle errors, maybe show toast
-    }
-  }, [isError]);
-
-  const isContentEmpty = useMemo(() => {
-    return content.replace(/<[^>]+>/g, "").trim().length === 0;
-  }, [content]);
-
-  const handleSave = () => {
-    if (!chapterId || isUploadingImage) return;
-    setSaveError("");
-
-    updateChapter(
-      { title, content, chapterNumber },
-      {
-        onSuccess: () => {
-          setIsEditing(false);
-          setIsPreview(false);
-        },
-        onError: () => setSaveError("Could not save the chapter. Please try again."),
-      },
-    );
-  };
 
   if (isLoading) {
     return <div className="p-8">Loading chapter...</div>;
@@ -83,129 +35,21 @@ export default function Page() {
               </button>
               <div className="min-w-0">
                 <h1 className="text-base md:text-lg font-bold text-neutral-900 truncate">
-                  {isEditing ? "Edit Chapter" : data.title}
+                  {data.title}
                 </h1>
                 <p className="text-sm text-neutral-600">
-                  Chapter {chapterNumber}
+                  Chapter {data.chapterNumber}
                 </p>
               </div>
-            </div>
-            <div className="flex items-center gap-2 sm:gap-3">
-              {!isOakApi && <ConfirmDialog
-                trigger={
-                  <button className="bg-red-50 hover:bg-red-100 text-red-600 px-3 py-2 rounded-lg flex items-center gap-2 transition-colors font-medium text-sm">
-                    <Trash2 className="w-4 h-4" />
-                    <span className="hidden sm:inline">Delete</span>
-                  </button>
-                }
-                title="Delete Chapter"
-                description={`Are you sure you want to delete "${data?.title || "this chapter"}"? This action cannot be undone.`}
-                onConfirm={() => {
-                  deleteChapter(chapterId as string, {
-                    onSuccess: () => router.push(`/books/${id}`),
-                  });
-                }}
-                confirmText="Delete"
-                destructive
-              />}
-              {isEditing ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsEditing(false);
-                      setIsPreview(false);
-                      setSaveError("");
-                    }}
-                    className="bg-neutral-100 hover:bg-neutral-200 text-neutral-700 px-3 py-2 rounded-lg transition-colors font-medium text-sm"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSave}
-                    disabled={isSaving || isUploadingImage || !title.trim() || isContentEmpty}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors disabled:opacity-50 font-medium text-sm"
-                  >
-                    {isSaving ? "Saving..." : isUploadingImage ? "Uploading..." : "Save"}
-                  </button>
-                </>
-              ) : !isOakApi ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (data) {
-                      setTitle(data.title || "");
-                      setContent(data.content || "");
-                      setChapterNumber(data.chapterNumber || 1);
-                    }
-                    setSaveError("");
-                    setIsEditing(true);
-                  }}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors font-medium text-sm"
-                >
-                  Edit
-                </button>
-              ) : null}
             </div>
           </div>
         </div>
 
         <div className="bg-white p-4 md:p-6 rounded-xl border border-neutral-200 shadow-sm h-full">
-          {isEditing ? (
-            <div className="space-y-4 h-full">
-              {saveError && <p role="alert" className="text-sm text-red-600">{saveError}</p>}
-              <button type="button" onClick={() => setIsPreview((current) => !current)} className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm hover:bg-neutral-50">
-                {isPreview ? <Pencil size={16} /> : <Eye size={16} />}
-                {isPreview ? "Edit" : "Preview"}
-              </button>
-              <Input
-                type="text"
-                placeholder="Chapter title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-              />
-              <Input
-                type="number"
-                min={1}
-                value={chapterNumber}
-                onChange={(e) => setChapterNumber(Number(e.target.value))}
-                required
-              />
-              <div className={isPreview ? "hidden" : ""}>
-                <RichTextEditor
-                value={content}
-                onChange={setContent}
-                placeholder="Chapter content"
-                className="h-full"
-                onUploadChange={setIsUploadingImage}
-                />
-              </div>
-              {isPreview && <div className="chapter-content prose prose-neutral max-w-none min-h-64 border border-neutral-200 p-4" dangerouslySetInnerHTML={{ __html: content || "<p>No content</p>" }} />}
-            </div>
-          ) : (
-            <div
-              className="chapter-content prose lg:prose-xl max-w-none text-neutral-700"
-              dangerouslySetInnerHTML={{
-                __html: data.content || "<p>No content</p>",
-              }}
-            />
-          )}
-          {!isOakApi && <div className="mt-4 md:mt-6 text-xs text-neutral-500 flex flex-wrap gap-3 md:gap-5">
-            <span>
-              Created:{" "}
-              {data.createdAt
-                ? dayjs(data.createdAt).format("YYYY-MM-DD HH:mm")
-                : "-"}
-            </span>
-            <span>
-              Updated:{" "}
-              {data.updatedAt
-                ? dayjs(data.updatedAt).format("YYYY-MM-DD HH:mm")
-                : "-"}
-            </span>
-          </div>}
+          <div
+            className="chapter-content prose lg:prose-xl max-w-none text-neutral-700"
+            dangerouslySetInnerHTML={{ __html: data.content || "<p>No content</p>" }}
+          />
         </div>
       </div>
     </div>

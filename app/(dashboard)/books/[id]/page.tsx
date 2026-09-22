@@ -1,34 +1,22 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
-import dayjs from "dayjs";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import {
   useGetBookDetails,
   useUpdateBook,
-  useDeleteChapter,
   useGetChaptersList,
 } from "@/query/book";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useParams, useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { uploadImage } from "@/service/common";
 import { cn } from "@/lib/utils";
-import { isOakApi } from "@/lib/axios";
-
-type BookEdits = Partial<{
-  title: string;
-  author: string;
-  description: string;
-  coverImage: string | null;
-}>;
 
 type ChapterRow = {
   id: string;
   title: string;
   chapterNumber: number;
-  updatedAt?: string;
 };
 
 export default function Page() {
@@ -42,35 +30,39 @@ export default function Page() {
     id as string,
     { page, limit },
   );
-  const { mutate: updateBook, isPending } = useUpdateBook(id as string);
-  const { mutate: deleteChapter } = useDeleteChapter(id as string);
-
-  const [bookEdits, setBookEdits] = useState<BookEdits>({});
+  const { mutateAsync: updateBook, isPending } = useUpdateBook(id as string);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
-  const book = useMemo(
-    () => ({
-      title: data?.title ?? "",
-      author: data?.author ?? "",
-      description: data?.description ?? "",
-      coverImage: data?.coverImage ?? null,
-      ...bookEdits,
-    }),
-    [data, bookEdits],
-  );
+  const book = {
+    title: data?.title ?? "",
+    author: data?.author ?? "",
+    description: data?.description ?? "",
+    coverImage: data?.coverImage ?? null,
+  };
 
   const handleSave = async () => {
-    let coverImage = book.coverImage;
+    if (isSaving) return;
+    setIsSaving(true);
+    setSaveError("");
+    setSaveSuccess(false);
+    try {
+      let coverImage = book.coverImage;
+      if (imageFile) {
+        const res = await uploadImage(imageFile);
+        coverImage = res.url;
+      }
 
-    if (imageFile) {
-      const res = await uploadImage(imageFile);
-      coverImage = res.url;
+      await updateBook({ ...book, coverImage });
+      setImageFile(null);
+      setSaveSuccess(true);
+    } catch {
+      setSaveError("Could not save the book. Please try again.");
+    } finally {
+      setIsSaving(false);
     }
-
-    updateBook({
-      ...book,
-      coverImage,
-    });
   };
 
   if (isLoading) return <div className="p-6">Loading...</div>;
@@ -104,12 +96,13 @@ export default function Page() {
             <span className="hidden sm:inline">Add Chapter</span>
           </button>
 
-          {!isOakApi && <button
+          <button
             onClick={handleSave}
+            disabled={isSaving || isPending || !imageFile}
             className="px-3 py-2 border rounded-lg text-sm bg-white"
           >
-            {isPending ? "Saving..." : "Save"}
-          </button>}
+            {isSaving || isPending ? "Saving..." : "Save"}
+          </button>
         </div>
       </div>
 
@@ -129,45 +122,40 @@ export default function Page() {
             )}
           </div>
 
-          {!isOakApi && <label className="block">
+          <label className="block">
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+              onChange={(e) => {
+                setImageFile(e.target.files?.[0] ?? null);
+                setSaveError("");
+                setSaveSuccess(false);
+              }}
               className="hidden"
             />
             <div className="text-center text-sm border border-dashed rounded-lg py-2 cursor-pointer hover:bg-neutral-100">
-              Choose Image
+              {imageFile ? imageFile.name : "Choose Image"}
             </div>
-          </label>}
+          </label>
 
-          {!isOakApi && <div className="text-sm text-neutral-500 space-y-1">
-            <p>Updated: {dayjs(data?.updatedAt).format("YYYY-MM-DD HH:mm")}</p>
-          </div>}
+          {saveError && <p role="alert" className="text-sm text-red-600">{saveError}</p>}
+          {saveSuccess && <p role="status" className="text-sm text-green-700">Book saved.</p>}
+
         </div>
 
         {/* Right */}
         <div className="md:col-span-2 bg-white border rounded-xl p-4 md:p-6 space-y-4">
           <Input
             value={book.title}
-            readOnly={isOakApi}
-            onChange={(e) =>
-              setBookEdits({ ...bookEdits, title: e.target.value })
-            }
+            readOnly
           />
           <Input
             value={book.author}
-            readOnly={isOakApi}
-            onChange={(e) =>
-              setBookEdits({ ...bookEdits, author: e.target.value })
-            }
+            readOnly
           />
           <Textarea
             value={book.description}
-            readOnly={isOakApi}
-            onChange={(e) =>
-              setBookEdits({ ...bookEdits, description: e.target.value })
-            }
+            readOnly
             className="h-32 md:h-40"
           />
         </div>
@@ -195,22 +183,8 @@ export default function Page() {
                   <p className="font-medium truncate">
                     Ch. {c.chapterNumber}: {c.title}
                   </p>
-                  {!isOakApi && <p className="text-xs text-neutral-400">
-                    {dayjs(c.updatedAt).format("YYYY-MM-DD HH:mm")}
-                  </p>}
                 </div>
 
-                {!isOakApi && <ConfirmDialog
-                  trigger={
-                    <button className="text-neutral-400 hover:text-red-500 p-2 flex-shrink-0">
-                      <Trash2 size={16} />
-                    </button>
-                  }
-                  title="Delete Chapter"
-                  description="Are you sure?"
-                  onConfirm={() => deleteChapter(String(c.id))}
-                  destructive
-                />}
               </div>
             ))}
         </div>

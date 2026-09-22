@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -15,26 +14,19 @@ import { ChevronLeft, Search } from "lucide-react";
 import { useGetBooks } from "@/query/book";
 import { TablePagination } from "@/components/table-pagination";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { isOakApi } from "@/lib/axios";
 
 type BookRow = {
   id: string;
   title: string;
   author: string;
   coverImage?: string;
-  chapterCount?: number;
-  views?: number;
-  likes?: number;
-  isPublished?: boolean;
 };
 
 export default function Page() {
   const router = useRouter();
   const [page, setPage] = useState(0);
   const limit = 10;
-  const [category, setCategory] = useState("");
   const [searchText, setSearchText] = useState("");
 
   const { data: books } = useGetBooks({ page: page + 1, limit, searchText });
@@ -86,23 +78,6 @@ export default function Page() {
           />
         </div>
 
-        {/* Category Pills */}
-        {!isOakApi && <div className="flex gap-2 flex-wrap">
-          {["All", "Xianxia", "Wuxia", "Xuanhuan", "Romance"].map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setCategory(cat === "All" ? "" : cat)}
-              className={cn(
-                "px-3 py-1.5 rounded-full text-sm border transition",
-                category === cat
-                  ? "bg-black text-white"
-                  : "bg-white hover:bg-neutral-100"
-              )}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>}
       </div>
 
       {/* 🔷 Table Card - Desktop */}
@@ -120,7 +95,6 @@ export default function Page() {
             <TableRow>
               <TableHead><p className="pl-2">Book</p></TableHead>
               <TableHead>Author</TableHead>
-              {!isOakApi && <><TableHead className="text-center">Chapters</TableHead><TableHead className="text-center">Views</TableHead><TableHead className="text-center">Likes</TableHead><TableHead className="text-center">Status</TableHead></>}
             </TableRow>
           </TableHeader>
 
@@ -153,30 +127,6 @@ export default function Page() {
                   {book.author}
                 </TableCell>
 
-                {!isOakApi && <><TableCell className="text-center">
-                  {book.chapterCount}
-                </TableCell>
-
-                <TableCell className="text-center">
-                  {book.views}
-                </TableCell>
-
-                <TableCell className="text-center">
-                  {book.likes}
-                </TableCell>
-
-                <TableCell className="text-center">
-                  <Badge
-                    className={cn(
-                      book.isPublished
-                        ? "bg-green-100 text-green-700"
-                        : "bg-orange-100 text-orange-700"
-                    )}
-                  >
-                    {book.isPublished ? "Published" : "Draft"}
-                  </Badge>
-                </TableCell>
-                </>}
               </TableRow>
             ))}
           </TableBody>
@@ -218,22 +168,7 @@ export default function Page() {
                   <p className="font-medium truncate">{book.title}</p>
                   <p className="text-sm text-neutral-500">{book.author}</p>
                 </div>
-                {!isOakApi && <Badge
-                  className={cn(
-                    "flex-shrink-0",
-                    book.isPublished
-                      ? "bg-green-100 text-green-700"
-                      : "bg-orange-100 text-orange-700"
-                  )}
-                >
-                  {book.isPublished ? "Published" : "Draft"}
-                </Badge>}
               </div>
-              {!isOakApi && <div className="mt-2 flex flex-wrap gap-3 text-xs text-neutral-500">
-                <span>Chapters: {book.chapterCount}</span>
-                <span>Views: {book.views}</span>
-                <span>Likes: {book.likes}</span>
-              </div>}
               <p className="mt-1 text-xs text-neutral-400">ID: {book.id}</p>
             </div>
           </div>

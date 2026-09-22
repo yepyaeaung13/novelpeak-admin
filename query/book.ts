@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { isOakApi } from "@/lib/axios";
 import {
   addBook,
   addBookToLibrary,
@@ -14,9 +13,6 @@ import {
   searchBooks,
   updateBook,
   addChapter,
-  updateChapter,
-  deleteChapter,
-  bookTranslate,
   getChapterList,
 } from "../service/book";
 
@@ -53,7 +49,7 @@ export const useGetChapterDetails = (chapterId: string | undefined, bookId?: str
   return useQuery({
     queryKey: ["chapterDetails", bookId, chapterId],
     queryFn: () => getChapterDetails(chapterId!, bookId),
-    enabled: !!chapterId && (!isOakApi || !!bookId),
+    enabled: !!chapterId && !!bookId,
   });
 };
 
@@ -144,41 +140,6 @@ export const useAddChapter = (bookId: string | undefined) => {
     },
   });
 };
-
-export const useUpdateChapter = (chapterId: string | undefined) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (chapterData: {
-      title: string;
-      content: string;
-      chapterNumber: number;
-    }) => updateChapter(chapterId!, chapterData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["chapterDetails"], refetchType: "active" });
-      queryClient.invalidateQueries({ queryKey: ["bookDetails"], refetchType: "active" });
-      queryClient.invalidateQueries({ queryKey: ["chapterslist"], refetchType: "active" });
-    },
-  });
-};
-
-export const useDeleteChapter = (bookId: string | undefined) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (chapterId: string) => deleteChapter(chapterId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["bookDetails", bookId], refetchType: "active" });
-      queryClient.invalidateQueries({ queryKey: ["chapterslist", bookId], refetchType: "active" });
-    },
-  });
-};
-
-export const useTranslate = () => {
-  return useMutation({
-    mutationFn: async ({ text, targetLang }: { text: string; targetLang: string }) => bookTranslate(text, targetLang),
-  });
-}
 
 export const useGetChaptersList = (bookId: string | undefined, params: { page: number; limit: number; }) => {
   return useQuery({

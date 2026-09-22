@@ -2,12 +2,10 @@
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
-import { ChevronLeft, Eye, Languages, Pencil } from "lucide-react";
+import { ChevronLeft, Eye, Pencil } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { useAddChapter } from "@/query/book";
-import { useTranslate } from "@/query/book"; // import the new hook
-import { isOakApi } from "@/lib/axios";
 
 export default function Page() {
   const { id } = useParams();
@@ -19,16 +17,13 @@ export default function Page() {
   const { mutate: addChapter, isPending: isSaving } = useAddChapter(
     id as string,
   );
-  const { mutate: translate, isPending: isTranslating } = useTranslate();
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [chapterNumber, setChapterNumber] = useState(Number(nextChapter) || 1);
-  const [targetLang, setTargetLang] = useState("Myanmar"); // default target language
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
   const [saveError, setSaveError] = useState("");
-  const hasImages = /<img\b/i.test(content);
 
   // Helper to strip HTML tags from content (plain text extraction)
   const stripHtml = (html: string) => {
@@ -55,31 +50,8 @@ export default function Page() {
     );
   };
 
-  const handleTranslate = () => {
-    const plainText = stripHtml(content);
-    if (!plainText || hasImages) return;
-
-    translate(
-      { text: plainText, targetLang },
-      {
-        onSuccess: (translatedText: string) => {
-          // Replace the editor content with the translated plain text
-          setContent(translatedText);
-        },
-        onError: (error) => {
-          console.error("Translation failed:", error);
-          // Optionally show a toast notification
-        },
-      },
-    );
-  };
-
   return (
-    <div
-      className={`w-full p-4 md:p-5 min-h-screen bg-neutral-50 ${
-        isTranslating ? "pointer-events-none select-none" : ""
-      }`}
-    >
+    <div className="w-full p-4 md:p-5 min-h-screen bg-neutral-50">
       <div className="max-w-5xl mx-auto space-y-4 md:space-y-6">
         {/* Header */}
         <div className="bg-white rounded-xl border border-neutral-200 shadow-sm px-4 md:px-6 py-4">
@@ -153,36 +125,6 @@ export default function Page() {
               {isPreview ? "Edit" : "Preview"}
             </button>
 
-            {/* Translation toolbar */}
-            {!isPreview && !isOakApi && (
-            <div className="flex flex-wrap items-center gap-2 mb-2">
-              <select
-                value={targetLang}
-                onChange={(e) => setTargetLang(e.target.value)}
-                className="px-3 py-1.5 text-sm border rounded-md bg-white"
-                disabled={isTranslating}
-              >
-                <option value="English">English</option>
-                <option value="Myanmar">Myanmar</option>
-              </select>
-              <button
-                type="button"
-                onClick={handleTranslate}
-                disabled={isContentEmpty || isTranslating || hasImages}
-                title={hasImages ? "Translate text before adding images" : "Translate chapter text"}
-                className="flex items-center gap-2 px-3 py-1.5 text-sm bg-neutral-100 border rounded-md hover:bg-neutral-200 transition disabled:opacity-50"
-              >
-                <Languages className="w-4 h-4" />
-                <span className="hidden sm:inline">
-                  {isTranslating ? "Translating..." : "Translate"}
-                </span>
-                <span className="sm:hidden">
-                  {isTranslating ? "..." : "Translate"}
-                </span>
-              </button>
-            </div>
-            )}
-
             <div className={isPreview ? "hidden" : ""}>
               <RichTextEditor
               value={content}
@@ -197,19 +139,6 @@ export default function Page() {
             )}
           </form>
 
-          {isTranslating && (
-            <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center cursor-not-allowed">
-              <div className="flex flex-col items-center gap-4">
-                {/* Spinner */}
-                <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin" />
-
-                {/* Text */}
-                <p className="text-white text-sm font-medium">
-                  Translating... This may take a few minutes
-                </p>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>

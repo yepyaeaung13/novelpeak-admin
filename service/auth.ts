@@ -1,5 +1,5 @@
 import axios from "axios";
-import axiosClient, { isOakApi } from "../lib/axios";
+import axiosClient from "../lib/axios";
 
 interface LoginRequest {
     email: string;
@@ -20,13 +20,8 @@ interface LoginResponse {
 
 export const login = async (data: LoginRequest): Promise<LoginResponse> => {
     try {
-        const response = await axiosClient.post(
-            isOakApi ? '/auth/admin/login' : '/v1/auth/admin-login',
-            data,
-        );
-        return isOakApi
-            ? { ...response.data, accessToken: response.data.token }
-            : response.data;
+        const response = await axiosClient.post('/auth/admin/login', data);
+        return { ...response.data, accessToken: response.data.token };
     } catch (error: unknown) {
         console.error('Login error:', error);
         const message = axios.isAxiosError(error)
