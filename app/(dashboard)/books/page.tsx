@@ -17,7 +17,7 @@ import { TablePagination } from "@/components/table-pagination";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { isLocalApi } from "@/lib/axios";
+import { isOakApi } from "@/lib/axios";
 
 type BookRow = {
   id: string;
@@ -87,7 +87,7 @@ export default function Page() {
         </div>
 
         {/* Category Pills */}
-        {!isLocalApi && <div className="flex gap-2 flex-wrap">
+        {!isOakApi && <div className="flex gap-2 flex-wrap">
           {["All", "Xianxia", "Wuxia", "Xuanhuan", "Romance"].map((cat) => (
             <button
               key={cat}
@@ -120,7 +120,7 @@ export default function Page() {
             <TableRow>
               <TableHead><p className="pl-2">Book</p></TableHead>
               <TableHead>Author</TableHead>
-              {!isLocalApi && <><TableHead className="text-center">Chapters</TableHead><TableHead className="text-center">Views</TableHead><TableHead className="text-center">Likes</TableHead><TableHead className="text-center">Status</TableHead></>}
+              {!isOakApi && <><TableHead className="text-center">Chapters</TableHead><TableHead className="text-center">Views</TableHead><TableHead className="text-center">Likes</TableHead><TableHead className="text-center">Status</TableHead></>}
             </TableRow>
           </TableHeader>
 
@@ -153,7 +153,7 @@ export default function Page() {
                   {book.author}
                 </TableCell>
 
-                {!isLocalApi && <><TableCell className="text-center">
+                {!isOakApi && <><TableCell className="text-center">
                   {book.chapterCount}
                 </TableCell>
 
@@ -218,7 +218,7 @@ export default function Page() {
                   <p className="font-medium truncate">{book.title}</p>
                   <p className="text-sm text-neutral-500">{book.author}</p>
                 </div>
-                {!isLocalApi && <Badge
+                {!isOakApi && <Badge
                   className={cn(
                     "flex-shrink-0",
                     book.isPublished
@@ -229,7 +229,7 @@ export default function Page() {
                   {book.isPublished ? "Published" : "Draft"}
                 </Badge>}
               </div>
-              {!isLocalApi && <div className="mt-2 flex flex-wrap gap-3 text-xs text-neutral-500">
+              {!isOakApi && <div className="mt-2 flex flex-wrap gap-3 text-xs text-neutral-500">
                 <span>Chapters: {book.chapterCount}</span>
                 <span>Views: {book.views}</span>
                 <span>Likes: {book.likes}</span>

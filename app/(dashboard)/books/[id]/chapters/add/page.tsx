@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { useAddChapter } from "@/query/book";
 import { useTranslate } from "@/query/book"; // import the new hook
-import { isLocalApi } from "@/lib/axios";
+import { isOakApi } from "@/lib/axios";
 
 export default function Page() {
   const { id } = useParams();
@@ -154,7 +154,7 @@ export default function Page() {
             </button>
 
             {/* Translation toolbar */}
-            {!isPreview && !isLocalApi && (
+            {!isPreview && !isOakApi && (
             <div className="flex flex-wrap items-center gap-2 mb-2">
               <select
                 value={targetLang}

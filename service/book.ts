@@ -1,7 +1,7 @@
-import axiosClient, { isLocalApi } from "../lib/axios";
+import axiosClient, { isOakApi } from "../lib/axios";
 
 const unsupported = (operation: string): never => {
-  throw new Error(`${operation} is not available in the local API yet.`);
+  throw new Error(`${operation} is not available in the Oak API yet.`);
 };
 
 export const getDiscoverBooks = async () => {
@@ -20,15 +20,15 @@ export const getRecommendedBooks = async () => {
 }
 
 export const getBookDetails = async (bookId: string) => {
-  const res = await axiosClient.get(isLocalApi ? `/books/${bookId}` : `/v1/books/${bookId}`);
-  return isLocalApi && res.data
+  const res = await axiosClient.get(isOakApi ? `/books/${bookId}` : `/v1/books/${bookId}`);
+  return isOakApi && res.data
     ? { ...res.data, coverImage: res.data.cover }
     : res.data;
 }
 
 export const getChapterDetails = async (chapterId: string, bookId?: string) => {
-  if (isLocalApi && !bookId) throw new Error("Book ID is required for local chapters.");
-  const res = await axiosClient.get(isLocalApi
+  if (isOakApi && !bookId) throw new Error("Book ID is required for Oak chapters.");
+  const res = await axiosClient.get(isOakApi
     ? `/books/${bookId}/chapters/${chapterId}`
     : `/v1/books/chapters/${chapterId}`);
   return res.data;
@@ -62,7 +62,7 @@ export const getBooks = async (params: {
   category?: string;
   searchText?: string;
 }) => {
-  if (isLocalApi) {
+  if (isOakApi) {
     const res = await axiosClient.get("/books");
     const books = (res.data as Array<{
       id: string;
@@ -93,8 +93,8 @@ export const addBook = async (bookData: {
   coverImage: string | null;
 }) => {
   const res = await axiosClient.post(
-    isLocalApi ? "/books" : "/v1/books",
-    isLocalApi ? {
+    isOakApi ? "/books" : "/v1/books",
+    isOakApi ? {
       title: bookData.title,
       author: bookData.author,
       description: bookData.description,
@@ -110,7 +110,7 @@ export const updateBook = async (bookId: string, bookData: {
   description: string;
   coverImage: string | null;
 }) => {
-  if (isLocalApi) unsupported("Book editing");
+  if (isOakApi) unsupported("Book editing");
   const res = await axiosClient.put(`/v1/books/${bookId}`, bookData);
   return res.data;
 };
@@ -121,7 +121,7 @@ export const addChapter = async (bookId: string, chapterData: {
   chapterNumber: number;
 }) => {
   const res = await axiosClient.post(
-    isLocalApi ? `/books/${bookId}/chapters` : `/v1/books/${bookId}/chapters`,
+    isOakApi ? `/books/${bookId}/chapters` : `/v1/books/${bookId}/chapters`,
     chapterData,
   );
   return res.data;
@@ -132,25 +132,25 @@ export const updateChapter = async (chapterId: string, chapterData: {
   content: string;
   chapterNumber: number;
 }) => {
-  if (isLocalApi) unsupported("Chapter editing");
+  if (isOakApi) unsupported("Chapter editing");
   const res = await axiosClient.put(`/v1/books/chapters/${chapterId}`, chapterData);
   return res.data;
 };
 
 export const deleteChapter = async (chapterId: string) => {
-  if (isLocalApi) unsupported("Chapter deletion");
+  if (isOakApi) unsupported("Chapter deletion");
   const res = await axiosClient.delete(`/v1/books/chapters/${chapterId}`);
   return res.data;
 };
 
 export const bookTranslate = async (text: string, targetLang: string) => {
-  if (isLocalApi) unsupported("Translation");
+  if (isOakApi) unsupported("Translation");
   const res = await axiosClient.post("/v1/books/translate", { text, targetLang });
   return res.data;
 }
 
 export const getChapterList = async (bookId: string | undefined, params: { page: number; limit: number; }) => {
-  if (isLocalApi) {
+  if (isOakApi) {
     const res = await axiosClient.get(`/books/${bookId}/chapters`);
     const chapters = (res.data as Array<{ chapterNumber: number }>).sort(
       (a, b) => a.chapterNumber - b.chapterNumber,

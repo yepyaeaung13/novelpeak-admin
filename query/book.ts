@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { isLocalApi } from "@/lib/axios";
+import { isOakApi } from "@/lib/axios";
 import {
   addBook,
   addBookToLibrary,
@@ -53,7 +53,7 @@ export const useGetChapterDetails = (chapterId: string | undefined, bookId?: str
   return useQuery({
     queryKey: ["chapterDetails", bookId, chapterId],
     queryFn: () => getChapterDetails(chapterId!, bookId),
-    enabled: !!chapterId && (!isLocalApi || !!bookId),
+    enabled: !!chapterId && (!isOakApi || !!bookId),
   });
 };
 

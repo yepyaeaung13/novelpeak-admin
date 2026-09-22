@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { uploadImage } from "@/service/common";
 import { cn } from "@/lib/utils";
-import { isLocalApi } from "@/lib/axios";
+import { isOakApi } from "@/lib/axios";
 
 type BookEdits = Partial<{
   title: string;
@@ -104,7 +104,7 @@ export default function Page() {
             <span className="hidden sm:inline">Add Chapter</span>
           </button>
 
-          {!isLocalApi && <button
+          {!isOakApi && <button
             onClick={handleSave}
             className="px-3 py-2 border rounded-lg text-sm bg-white"
           >
@@ -129,7 +129,7 @@ export default function Page() {
             )}
           </div>
 
-          {!isLocalApi && <label className="block">
+          {!isOakApi && <label className="block">
             <input
               type="file"
               accept="image/*"
@@ -141,7 +141,7 @@ export default function Page() {
             </div>
           </label>}
 
-          {!isLocalApi && <div className="text-sm text-neutral-500 space-y-1">
+          {!isOakApi && <div className="text-sm text-neutral-500 space-y-1">
             <p>Updated: {dayjs(data?.updatedAt).format("YYYY-MM-DD HH:mm")}</p>
           </div>}
         </div>
@@ -150,21 +150,21 @@ export default function Page() {
         <div className="md:col-span-2 bg-white border rounded-xl p-4 md:p-6 space-y-4">
           <Input
             value={book.title}
-            readOnly={isLocalApi}
+            readOnly={isOakApi}
             onChange={(e) =>
               setBookEdits({ ...bookEdits, title: e.target.value })
             }
           />
           <Input
             value={book.author}
-            readOnly={isLocalApi}
+            readOnly={isOakApi}
             onChange={(e) =>
               setBookEdits({ ...bookEdits, author: e.target.value })
             }
           />
           <Textarea
             value={book.description}
-            readOnly={isLocalApi}
+            readOnly={isOakApi}
             onChange={(e) =>
               setBookEdits({ ...bookEdits, description: e.target.value })
             }
@@ -195,12 +195,12 @@ export default function Page() {
                   <p className="font-medium truncate">
                     Ch. {c.chapterNumber}: {c.title}
                   </p>
-                  {!isLocalApi && <p className="text-xs text-neutral-400">
+                  {!isOakApi && <p className="text-xs text-neutral-400">
                     {dayjs(c.updatedAt).format("YYYY-MM-DD HH:mm")}
                   </p>}
                 </div>
 
-                {!isLocalApi && <ConfirmDialog
+                {!isOakApi && <ConfirmDialog
                   trigger={
                     <button className="text-neutral-400 hover:text-red-500 p-2 flex-shrink-0">
                       <Trash2 size={16} />

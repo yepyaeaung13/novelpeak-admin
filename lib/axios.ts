@@ -4,8 +4,12 @@ import Cookies from "js-cookie";
 export const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ||
   (process.env.NODE_ENV === "development"
     ? "http://localhost:8000"
-    : "https://api.novelpeak.online/api");
-export const isLocalApi = apiBaseUrl.replace(/\/$/, "") === "http://localhost:8000";
+    : "https://deno-oak-api.yepyaeaung13.deno.net");
+export const isOakApi = new Set([
+  "http://localhost:8000",
+  "http://127.0.0.1:8000",
+  "https://deno-oak-api.yepyaeaung13.deno.net",
+]).has(new URL(apiBaseUrl).origin);
 
 export const axiosClient = axios.create({
   baseURL: apiBaseUrl,

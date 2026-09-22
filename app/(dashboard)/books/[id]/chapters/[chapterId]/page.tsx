@@ -12,7 +12,7 @@ import {
   useDeleteChapter,
 } from "@/query/book";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { isLocalApi } from "@/lib/axios";
+import { isOakApi } from "@/lib/axios";
 
 export default function Page() {
   const { id, chapterId } = useParams();
@@ -91,7 +91,7 @@ export default function Page() {
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
-              {!isLocalApi && <ConfirmDialog
+              {!isOakApi && <ConfirmDialog
                 trigger={
                   <button className="bg-red-50 hover:bg-red-100 text-red-600 px-3 py-2 rounded-lg flex items-center gap-2 transition-colors font-medium text-sm">
                     <Trash2 className="w-4 h-4" />
@@ -130,7 +130,7 @@ export default function Page() {
                     {isSaving ? "Saving..." : isUploadingImage ? "Uploading..." : "Save"}
                   </button>
                 </>
-              ) : !isLocalApi ? (
+              ) : !isOakApi ? (
                 <button
                   type="button"
                   onClick={() => {
@@ -192,7 +192,7 @@ export default function Page() {
               }}
             />
           )}
-          {!isLocalApi && <div className="mt-4 md:mt-6 text-xs text-neutral-500 flex flex-wrap gap-3 md:gap-5">
+          {!isOakApi && <div className="mt-4 md:mt-6 text-xs text-neutral-500 flex flex-wrap gap-3 md:gap-5">
             <span>
               Created:{" "}
               {data.createdAt
