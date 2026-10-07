@@ -1,3 +1,4 @@
+import type { BookFormData } from "@/lib/book";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   addBook,
@@ -96,12 +97,7 @@ export const useAddBook = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (bookData: {
-      title: string;
-      author: string;
-      description: string;
-      coverImage: string | null;
-    }) => addBook(bookData),
+    mutationFn: (bookData: BookFormData) => addBook(bookData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["books"], refetchType: "active" });
       queryClient.invalidateQueries({ queryKey: ["discoverBooks"], refetchType: "active" });
@@ -113,12 +109,7 @@ export const useUpdateBook = (bookId: string | undefined) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (bookData: {
-      title: string;
-      author: string;
-      description: string;
-      coverImage: string | null;
-    }) => updateBook(bookId!, bookData),
+    mutationFn: (bookData: BookFormData) => updateBook(bookId!, bookData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bookDetails", bookId], refetchType: "active" });
       queryClient.invalidateQueries({ queryKey: ["books"], refetchType: "active" });

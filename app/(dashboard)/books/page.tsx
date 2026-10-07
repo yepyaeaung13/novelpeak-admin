@@ -21,6 +21,9 @@ type BookRow = {
   title: string;
   author: string;
   coverImage?: string;
+  bookType?: string;
+  status?: string;
+  publicationStatus?: string;
 };
 
 export default function Page() {
@@ -95,6 +98,9 @@ export default function Page() {
             <TableRow>
               <TableHead><p className="pl-2">Book</p></TableHead>
               <TableHead>Author</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Story status</TableHead>
+              <TableHead>Publication</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -126,6 +132,9 @@ export default function Page() {
                 <TableCell className="text-neutral-600">
                   {book.author}
                 </TableCell>
+                <TableCell>{book.bookType ?? "Novel"}</TableCell>
+                <TableCell>{book.status ?? "Ongoing"}</TableCell>
+                <TableCell><span className="rounded-full bg-neutral-100 px-2 py-1 text-xs">{book.publicationStatus ?? "Published"}</span></TableCell>
 
               </TableRow>
             ))}
@@ -169,6 +178,7 @@ export default function Page() {
                   <p className="text-sm text-neutral-500">{book.author}</p>
                 </div>
               </div>
+              <p className="mt-2 text-xs text-neutral-600">{book.bookType ?? "Novel"} · {book.status ?? "Ongoing"} · {book.publicationStatus ?? "Published"}</p>
               <p className="mt-1 text-xs text-neutral-400">ID: {book.id}</p>
             </div>
           </div>

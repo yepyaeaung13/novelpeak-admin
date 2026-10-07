@@ -4,18 +4,13 @@ import { ChevronLeft, UploadCloud } from "lucide-react";
 import { useAddBook } from "@/query/book";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { BookFields } from "@/components/book-fields";
+import { emptyBook, type BookFormData } from "@/lib/book";
 import { uploadImage } from "@/service/common";
 
 export default function Page() {
   const router = useRouter();
-  const [book, setBook] = useState({
-    title: "",
-    description: "",
-    author: "",
-    coverImage: null as string | null,
-  });
+  const [book, setBook] = useState<BookFormData>(emptyBook);
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const { mutate: addBook, isPending } = useAddBook();
@@ -94,7 +89,7 @@ export default function Page() {
             form="book"
             type="submit"
             disabled={
-              isPending || isUploading || !book.title || !book.author || !book.description
+              isPending || isUploading || !book.title.trim() || !book.author.trim()
             }
             className="px-4 py-2 bg-black text-white rounded-lg text-sm hover:opacity-90 disabled:opacity-50"
           >
@@ -145,39 +140,7 @@ export default function Page() {
           className="md:col-span-2 bg-white border rounded-xl p-4 md:p-6 space-y-4 md:space-y-5"
         >
           {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Title</label>
-            <Input
-              value={book.title}
-              onChange={(e) =>
-                setBook({ ...book, title: e.target.value })
-              }
-              placeholder="Enter book title"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Author</label>
-            <Input
-              value={book.author}
-              onChange={(e) =>
-                setBook({ ...book, author: e.target.value })
-              }
-              placeholder="Author name"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Description</label>
-            <Textarea
-              value={book.description}
-              onChange={(e) =>
-                setBook({ ...book, description: e.target.value })
-              }
-              placeholder="Write something about this book..."
-              className="h-32 md:h-40"
-            />
-          </div>
+          <BookFields book={book} onChange={setBook} disabled={isPending || isUploading} />
         </form>
       </div>
     </div>

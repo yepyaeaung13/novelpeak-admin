@@ -1,3 +1,4 @@
+import type { BookFormData } from "@/lib/book";
 import axiosClient from "../lib/axios";
 
 
@@ -17,7 +18,7 @@ export const getRecommendedBooks = async () => {
 }
 
 export const getBookDetails = async (bookId: string) => {
-  const res = await axiosClient.get(`/books/${bookId}`);
+  const res = await axiosClient.get(`/admin/books/${bookId}`);
   return res.data
     ? { ...res.data, coverImage: res.data.cover }
     : res.data;
@@ -25,7 +26,7 @@ export const getBookDetails = async (bookId: string) => {
 
 export const getChapterDetails = async (chapterId: string, bookId?: string) => {
   if (!bookId) throw new Error("Book ID is required for chapters.");
-  const res = await axiosClient.get(`/books/${bookId}/chapters/${chapterId}`);
+  const res = await axiosClient.get(`/admin/books/${bookId}/chapters/${chapterId}`);
   return res.data;
 }
 
@@ -56,7 +57,7 @@ export const getBooks = async (params: {
   limit: number;
   searchText?: string;
 }) => {
-  const res = await axiosClient.get("/books");
+  const res = await axiosClient.get("/admin/books");
   const books = (res.data as Array<{
       id: string;
       title: string;
@@ -74,31 +75,27 @@ export const getBooks = async (params: {
   };
 }
 
-export const addBook = async (bookData: {
-  title: string;
-  author: string;
-  description: string;
-  coverImage: string | null;
-}) => {
+export const addBook = async (bookData: BookFormData) => {
   const res = await axiosClient.post(
     "/books",
     {
       title: bookData.title,
       author: bookData.author,
       description: bookData.description,
+      bookType: bookData.bookType,
+      genres: bookData.genres,
+      status: bookData.status,
+      language: bookData.language,
+      publicationStatus: bookData.publicationStatus,
       cover: bookData.coverImage ?? "",
     },
   );
   return res.data;
 };
 
-export const updateBook = async (bookId: string, bookData: {
-  title: string;
-  author: string;
-  description: string;
-  coverImage: string | null;
-}) => {
-  const res = await axiosClient.patch(`/books/${bookId}/cover`, { cover: bookData.coverImage });
+export const updateBook = async (bookId: string, bookData: BookFormData) => {
+  const { coverImage, ...metadata } = bookData;
+  const res = await axiosClient.patch(`/books/${bookId}`, { ...metadata, cover: coverImage ?? "" });
   return res.data;
 };
 
@@ -121,7 +118,7 @@ export const updateChapter = async (bookId: string, chapterId: string, chapterDa
 };
 
 export const getChapterList = async (bookId: string | undefined, params: { page: number; limit: number; }) => {
-  const res = await axiosClient.get(`/books/${bookId}/chapters`);
+  const res = await axiosClient.get(`/admin/books/${bookId}/chapters`);
   const chapters = (res.data as Array<{
     id: string;
     title: string;

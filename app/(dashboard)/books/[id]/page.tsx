@@ -8,8 +8,8 @@ import {
 } from "@/query/book";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { BookFields } from "@/components/book-fields";
+import { emptyBook, type BookFormData } from "@/lib/book";
 import { uploadImage } from "@/service/common";
 import { cn } from "@/lib/utils";
 
@@ -36,15 +36,22 @@ export default function Page() {
   const [saveError, setSaveError] = useState("");
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  const book = {
+  const [editedBook, setEditedBook] = useState<BookFormData | null>(null);
+  const book: BookFormData = editedBook ?? {
+    ...emptyBook,
     title: data?.title ?? "",
     author: data?.author ?? "",
     description: data?.description ?? "",
     coverImage: data?.coverImage ?? null,
+    bookType: data?.bookType ?? "Novel",
+    genres: data?.genres ?? [],
+    status: data?.status ?? "Ongoing",
+    language: data?.language ?? "Burmese",
+    publicationStatus: data?.publicationStatus ?? "Published",
   };
 
   const handleSave = async () => {
-    if (isSaving) return;
+    if (isSaving || !book.title.trim() || !book.author.trim()) return;
     setIsSaving(true);
     setSaveError("");
     setSaveSuccess(false);
@@ -56,6 +63,7 @@ export default function Page() {
       }
 
       await updateBook({ ...book, coverImage });
+      setEditedBook({ ...book, coverImage });
       setImageFile(null);
       setSaveSuccess(true);
     } catch {
@@ -66,6 +74,7 @@ export default function Page() {
   };
 
   if (isLoading) return <div className="p-6">Loading...</div>;
+  if (!data) return <div className="p-6">Book not found.</div>;
 
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-4 md:space-y-6">
@@ -98,7 +107,7 @@ export default function Page() {
 
           <button
             onClick={handleSave}
-            disabled={isSaving || isPending || !imageFile}
+            disabled={isSaving || isPending || !book.title.trim() || !book.author.trim()}
             className="px-3 py-2 border rounded-lg text-sm bg-white"
           >
             {isSaving || isPending ? "Saving..." : "Save"}
@@ -145,19 +154,10 @@ export default function Page() {
 
         {/* Right */}
         <div className="md:col-span-2 bg-white border rounded-xl p-4 md:p-6 space-y-4">
-          <Input
-            value={book.title}
-            readOnly
-          />
-          <Input
-            value={book.author}
-            readOnly
-          />
-          <Textarea
-            value={book.description}
-            readOnly
-            className="h-32 md:h-40"
-          />
+          <BookFields book={book} onChange={value => {
+            setEditedBook(value);
+            setSaveSuccess(false);
+          }} disabled={isSaving || isPending} />
         </div>
       </div>
 
