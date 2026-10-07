@@ -13,6 +13,7 @@ import {
   searchBooks,
   updateBook,
   addChapter,
+  updateChapter,
   getChapterList,
 } from "../service/book";
 
@@ -145,5 +146,22 @@ export const useGetChaptersList = (bookId: string | undefined, params: { page: n
   return useQuery({
     queryKey: ["chapterslist", bookId, params],
     queryFn: () => getChapterList(bookId, params),
+  });
+};
+
+export const useUpdateChapter = (bookId: string | undefined, chapterId: string | undefined) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (chapterData: {
+      title: string;
+      content: string;
+      chapterNumber: number;
+    }) => updateChapter(bookId!, chapterId!, chapterData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chapterDetails", bookId, chapterId], refetchType: "active" });
+      queryClient.invalidateQueries({ queryKey: ["chapterslist", bookId], refetchType: "active" });
+      queryClient.invalidateQueries({ queryKey: ["bookDetails", bookId], refetchType: "active" });
+    },
   });
 };

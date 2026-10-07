@@ -111,6 +111,15 @@ export const addChapter = async (bookId: string, chapterData: {
   return res.data;
 };
 
+export const updateChapter = async (bookId: string, chapterId: string, chapterData: {
+  title: string;
+  content: string;
+  chapterNumber: number;
+}) => {
+  const res = await axiosClient.patch(`/books/${bookId}/chapters/${chapterId}`, chapterData);
+  return res.data;
+};
+
 export const getChapterList = async (bookId: string | undefined, params: { page: number; limit: number; }) => {
   const res = await axiosClient.get(`/books/${bookId}/chapters`);
   const chapters = (res.data as Array<{
