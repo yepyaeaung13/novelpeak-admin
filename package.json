@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --experimental-strip-types lib/myanmar-review.test.mjs && node --experimental-strip-types lib/ai-review.test.mjs && node --experimental-strip-types lib/provider-error.test.mjs && node --experimental-strip-types lib/usage.test.mjs"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.15",

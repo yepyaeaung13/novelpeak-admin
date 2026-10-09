@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, SpellCheck } from "lucide-react";
 import {
   useGetBookDetails,
   useUpdateBook,
@@ -174,7 +174,7 @@ export default function Page() {
             .map((c: ChapterRow) => (
               <div
                 key={c.id}
-                className="flex justify-between items-center px-4 md:px-5 py-3 border-b hover:bg-neutral-50"
+                className="flex justify-between items-center gap-3 px-4 md:px-5 py-3 border-b hover:bg-neutral-50"
               >
                 <div
                   onClick={() => router.push(`/books/${id}/chapters/${c.id}`)}
@@ -184,6 +184,14 @@ export default function Page() {
                     Ch. {c.chapterNumber}: {c.title}
                   </p>
                 </div>
+
+                <button
+                  onClick={() => router.push(`/books/${id}/chapters/${c.id}/review`)}
+                  className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs hover:bg-white transition"
+                >
+                  <SpellCheck size={14} />
+                  Review
+                </button>
 
               </div>
             ))}

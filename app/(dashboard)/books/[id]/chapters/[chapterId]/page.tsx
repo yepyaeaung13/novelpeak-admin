@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import axios from "axios";
-import { ChevronLeft, Pencil } from "lucide-react";
+import { ChevronLeft, Pencil, SpellCheck } from "lucide-react";
 import { useGetChapterDetails, useUpdateChapter } from "@/query/book";
 import { Input } from "@/components/ui/input";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
@@ -120,6 +121,13 @@ export default function Page() {
                 {saveSuccess && (
                   <span className="text-sm text-green-600">Saved</span>
                 )}
+                <Link
+                  href={`/books/${id}/chapters/${chapterId}/review`}
+                  className="inline-flex items-center gap-2 rounded-lg border px-3 sm:px-4 py-2 text-sm hover:bg-neutral-100 transition"
+                >
+                  <SpellCheck size={16} />
+                  Review
+                </Link>
                 <button
                   type="button"
                   onClick={handleStartEdit}
