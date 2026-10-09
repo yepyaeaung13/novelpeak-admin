@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
+import { BubbleMenu } from "@tiptap/react/menus";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Underline from "@tiptap/extension-underline";
@@ -18,6 +19,11 @@ interface RichTextEditorProps {
   onUploadChange?: (uploading: boolean) => void;
 }
 
+const toolButtonClass =
+  "px-2 py-1 text-xs border rounded hover:bg-neutral-100 transition-colors";
+
+const toolActiveClass = "bg-neutral-200 border-neutral-300 font-medium";
+
 export function RichTextEditor({ value, onChange, placeholder, className, onUploadChange }: RichTextEditorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -30,7 +36,7 @@ export function RichTextEditor({ value, onChange, placeholder, className, onUplo
     },
     editorProps: {
       attributes: {
-        class: "min-h-64 p-3 focus:outline-none prose prose-neutral max-w-none break-words chapter-content",
+        class: "min-h-64 p-3 focus:outline-none prose prose-neutral max-w-none break-words chapter-content scroll-mt-20",
       },
     },
     immediatelyRender: false,
@@ -87,14 +93,14 @@ export function RichTextEditor({ value, onChange, placeholder, className, onUplo
 
   return (
     <div className={`border border-neutral-200 rounded-lg ${className ?? ""}`}>
-      <div className="flex flex-wrap items-center gap-2 bg-neutral-50 border-b border-neutral-200 p-2 rounded-t-lg">
-        <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className="px-2 py-1 text-xs border rounded hover:bg-neutral-100">Bold</button>
-        <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className="px-2 py-1 text-xs border rounded hover:bg-neutral-100">Italic</button>
-        <button type="button" onClick={() => editor.chain().focus().toggleUnderline().run()} className="px-2 py-1 text-xs border rounded hover:bg-neutral-100">Underline</button>
-        <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className="px-2 py-1 text-xs border rounded hover:bg-neutral-100">UL</button>
-        <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} className="px-2 py-1 text-xs border rounded hover:bg-neutral-100">OL</button>
-        <button type="button" onClick={() => editor.chain().focus().setNode("heading", { level: 2 }).run()} className="px-2 py-1 text-xs border rounded hover:bg-neutral-100">H2</button>
-        <button type="button" onClick={() => editor.chain().focus().setParagraph().run()} className="px-2 py-1 text-xs border rounded hover:bg-neutral-100">P</button>
+      <div className="sticky top-0 z-20 flex flex-wrap items-center gap-2 bg-neutral-50/95 backdrop-blur border-b border-neutral-200 p-2 rounded-t-lg">
+        <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={`${toolButtonClass} ${editor.isActive("bold") ? toolActiveClass : ""}`}>Bold</button>
+        <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={`${toolButtonClass} ${editor.isActive("italic") ? toolActiveClass : ""}`}>Italic</button>
+        <button type="button" onClick={() => editor.chain().focus().toggleUnderline().run()} className={`${toolButtonClass} ${editor.isActive("underline") ? toolActiveClass : ""}`}>Underline</button>
+        <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={`${toolButtonClass} ${editor.isActive("bulletList") ? toolActiveClass : ""}`}>UL</button>
+        <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={`${toolButtonClass} ${editor.isActive("orderedList") ? toolActiveClass : ""}`}>OL</button>
+        <button type="button" onClick={() => editor.chain().focus().setNode("heading", { level: 2 }).run()} className={`${toolButtonClass} ${editor.isActive("heading", { level: 2 }) ? toolActiveClass : ""}`}>H2</button>
+        <button type="button" onClick={() => editor.chain().focus().setParagraph().run()} className={`${toolButtonClass} ${editor.isActive("paragraph") ? toolActiveClass : ""}`}>P</button>
         <span className="mx-1 h-5 w-px bg-neutral-300" />
         <button type="button" onClick={() => fileInputRef.current?.click()} disabled={isUploading} title="Insert image" aria-label="Insert image" className="flex h-8 w-8 items-center justify-center rounded border hover:bg-neutral-100 disabled:opacity-50"><ImagePlus size={16} /></button>
         <button type="button" onClick={() => editor.chain().focus().deleteSelection().run()} disabled={!editor.isActive("image")} title="Remove selected image" aria-label="Remove selected image" className="flex h-8 w-8 items-center justify-center rounded border hover:bg-neutral-100 disabled:opacity-50"><Trash2 size={16} /></button>
@@ -102,6 +108,20 @@ export function RichTextEditor({ value, onChange, placeholder, className, onUplo
         {isUploading && <span className="text-xs text-neutral-600">Uploading image...</span>}
       </div>
       {uploadError && <p role="alert" className="px-3 py-2 text-sm text-red-600">{uploadError}</p>}
+
+      <BubbleMenu
+        editor={editor}
+        options={{ placement: "top-start", offset: 8 }}
+        className="flex flex-wrap items-center gap-1 rounded-lg border border-neutral-200 bg-white p-1 shadow-lg"
+      >
+        <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={`${toolButtonClass} border-0 ${editor.isActive("bold") ? toolActiveClass : ""}`}>Bold</button>
+        <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={`${toolButtonClass} border-0 ${editor.isActive("italic") ? toolActiveClass : ""}`}>Italic</button>
+        <button type="button" onClick={() => editor.chain().focus().toggleUnderline().run()} className={`${toolButtonClass} border-0 ${editor.isActive("underline") ? toolActiveClass : ""}`}>Underline</button>
+        <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={`${toolButtonClass} border-0 ${editor.isActive("bulletList") ? toolActiveClass : ""}`}>UL</button>
+        <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={`${toolButtonClass} border-0 ${editor.isActive("orderedList") ? toolActiveClass : ""}`}>OL</button>
+        <button type="button" onClick={() => editor.chain().focus().setNode("heading", { level: 2 }).run()} className={`${toolButtonClass} border-0 ${editor.isActive("heading", { level: 2 }) ? toolActiveClass : ""}`}>H2</button>
+        <button type="button" onClick={() => fileInputRef.current?.click()} disabled={isUploading} title="Insert image" aria-label="Insert image" className="flex h-8 w-8 items-center justify-center rounded hover:bg-neutral-100 disabled:opacity-50"><ImagePlus size={16} /></button>
+      </BubbleMenu>
 
       <div className="relative">
         {isEmpty && (
